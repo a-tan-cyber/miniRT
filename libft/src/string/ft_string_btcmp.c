@@ -33,3 +33,21 @@ int	ft_str_is_subset(const char *pool, const char *legal)
 	}
 	return (1);
 }
+
+t_bool	check_str_end(const char *s1, const char *end)
+{
+	int	s1_len;
+	int	end_len;
+	int	end_loc;
+
+	if (!s1 || !end)
+		return (FALSE);
+	s1_len = (int)ft_strlen(s1);
+	end_len = (int)ft_strlen(end);
+	end_loc = s1_len - end_len;
+	if (end_loc < 0)
+		return (FALSE);
+	if (ft_strcmp(s1 + end_loc, end) == 0)
+		return (TRUE);
+	return (FALSE);
+}

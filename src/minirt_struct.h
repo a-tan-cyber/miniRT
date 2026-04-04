@@ -22,20 +22,66 @@ enum e_type
 
 typedef	enum	e_type	t_type;
 
-struct s_obj
+struct s_cord
 {
-	t_type	type;
 	float	x;
 	float	y;
 	float	z;
-
 };
 
+typedef struct	s_cord	t_cord;
+
+struct s_obj
+{
+	t_type			type;
+	t_cord			cord;
+	float			dia;
+	t_cord			ori;
+	float			higt;
+	int				r;
+	int				g;
+	int				b;
+	struct s_obj	*next;
+	struct s_data	*data;
+};
 
 typedef struct	s_obj	t_obj;
 
+struct s_ambi
+{
+	float	ratio;
+	int		r;
+	int		g;
+	int		b;
+};
+
+typedef struct	s_ambi	t_ambi;
+
+struct s_cam
+{
+	t_cord	cord;
+	t_cord	ori;
+	int		fov;
+};
+
+typedef struct	s_cam	t_cam;
+
+struct s_ligt
+{
+	t_cord	cord;
+	float	bright;
+};
+
+typedef struct	s_ligt	t_ligt;
+
+struct s_data
+{
+	t_ambi			ambi;
+	t_cam			cam;
+	t_ligt			ligt;
+	struct s_obj	*next;
+};
 
 typedef struct	s_data	t_data;
-
 
 #endif

@@ -41,6 +41,7 @@ int		num_of_x_ignore_y_substr(const char *line, char x, char y);
 
 // ft_string_btcmp.c
 int		ft_str_is_subset(const char *pool, const char *legal);
+t_bool	check_str_end(const char *s1, const char *end);
 
 // ft_string_con.c
 char	*concat_char(char *string, char c);
