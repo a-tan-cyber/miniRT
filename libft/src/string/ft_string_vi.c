@@ -90,6 +90,7 @@ int	ft_str_is_num(char *str)
 	return (1);
 }
 
+// 1 is true, 0 is false
 int	ft_str_is_float(char *str)
 {
 	if (*str == '\0')

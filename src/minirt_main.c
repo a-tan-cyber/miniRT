@@ -12,6 +12,9 @@
 
 #include "minirt.h"
 
+// ft_str_is_float
+// ft_atof
+
 // if s1 is smaller than min or bigger than max, then return 0
 int	validate_str_int_range(const char *s1, const char *min, const char *max)
 {
@@ -52,19 +55,105 @@ int	add_rt_data_d_a(const char **split_arr, t_data **data)
 	return (free_arr(arr), 0);
 }
 
-int	add_rt_data_d(const char **split_arr, t_data **data)
+char	**split_3_float(const char *string, const char *charset)
 {
 	char	**arr;
-	t_data	*info;
+
+	if (!string || !charset)
+		return (NULL);
+	arr = ft_split(string, charset);
+	if (!arr)
+		return (ft_puterr("malloc failed"), NULL);
+	if (ft_arrlen(arr) != 3)
+		return (ft_puterr("wrong no. of vector"), free_arr(arr), NULL);
+	if (!ft_str_is_float(arr[0]) || !ft_str_is_float(arr[1])
+		|| !ft_str_is_float(arr[2]))
+		return (ft_puterr("vector or ori is not float"), free_arr(arr), NULL);
+	return (arr);
+}
+
+char	**split_3_float_range(const char *string, const char *charset,
+			float min, float max)
+{
+	char	**arr;
+	float	curr;
+
+	arr = split_3_float(string, charset);
+	if (!arr)
+		return (NULL);
+	curr = ft_atof(arr[0]);
+	if (curr < min || max < curr)
+		return (ft_puterr("float number x out of range"), free_arr(arr), NULL);
+	curr = ft_atof(arr[1]);
+	if (curr < min || max < curr)
+		return (ft_puterr("float number y out of range"), free_arr(arr), NULL);
+	curr = ft_atof(arr[2]);
+	if (curr < min || max < curr)
+		return (ft_puterr("float number z out of range"), free_arr(arr), NULL);
+	return (arr);
+}
+
+void	ins_vec3(t_cord *cord, float x, float y, float z)
+{
+	cord->x = x;
+	cord->y = y;
+	cord->z = z;
+}
+
+// ◦Camera:
+// C -50.0,0,20 0,0,1 70
+// ∗identifier: C
+// ∗x, y, z coordinates of the viewpoint: -50.0,0,20
+// ∗3D normalized orientation vector, in the range [-1,1] for each x, y, z axis:
+// 0.0,0.0,1.0
+// ∗FOV: Horizontal field of view in degrees in the range [0,180]: 70
+int	add_rt_data_d_c(const char **split_arr, t_cam *cam)
+{
+	char	**arr;
+
+	if (ft_arrlen(split_arr) != 4)
+		return (-1);
+	arr = split_3_float(split_arr[1], ",");
+	if (!arr)
+		return (ft_puterr("data.cam.cord error"), 2);
+	ins_vec3(cam->cord, ft_atof(arr[0]), ft_atof(arr[1]), ft_atof(arr[2]));
+	free_arr(arr);
+	arr = split_3_float_range(split_arr[2], ",", -1, 1);
+	if (!arr)
+		return (ft_puterr("data.cam.ori error"), 3);
+	ins_vec3(cam->ori, ft_atof(arr[0]), ft_atof(arr[1]), ft_atof(arr[2]));
+	free_arr(arr);
+	if (validate_str_int_range(split_arr[3], "0", "180") == FALSE)
+		return (ft_puterr("data.cam FOV val invalid"), 4);
+	cam->fov = ft_atoi(split_arr[3]);
+	return (0);
+}
+
+// ◦Light:
+// L -40.0,50.0,0.0 0.6 10,0,255
+// ∗identifier: L
+// ∗x, y, z coordinates of the light point: -40.0,50.0,0.0
+// ∗the light brightness ratio in the range [0.0,1.0]: 0.6
+// ∗(unused in mandatory part) R, G, B colors in the range [0-255]: 10, 0,
+// 255
+// err = add_rt_data_d_l(split_arr, data);
+
+int	add_rt_data_d(const char **split_arr, t_data **data)
+{
 	int		err;
 
-	info = *data;
 	err = 0;
 	if (ft_strcmp(split_arr[0], "A") == 0)
 		err = add_rt_data_d_a(split_arr, data);
-
+	if (ft_strcmp(split_arr[0], "C") == 0)
+		err = add_rt_data_d_c(split_arr, (*data)->cam);
+	if (ft_strcmp(split_arr[0], "L") == 0)
+		err = add_rt_data_d_l(split_arr, data);
 	return (err);
 }
+
+
+
 // if (add_rt_data_s(split_arr, obj) != 0)
 
 int	add_rt_data(const char *trimmed, t_obj **obj, t_data **data)

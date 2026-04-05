@@ -105,6 +105,7 @@ int		ft_str_is_printable(char *str);
 // ft_string_vi.c
 int		ft_str_is_int(char *str);
 int		ft_str_is_num(char *str);
+int		ft_str_is_float(char *str);
 
 // ft_string_t.c
 char	*ft_str_toupper(char *str);
