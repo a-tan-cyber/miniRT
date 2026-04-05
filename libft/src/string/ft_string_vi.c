@@ -76,7 +76,21 @@ int	ft_str_is_int(char *str)
 	return (1);
 }
 
+// 1 is true, 0 is false
 int	ft_str_is_num(char *str)
+{
+	if (*str == '\0')
+		return (0);
+	while (*str)
+	{
+		if ((*str < '0') || ('9' < *str))
+			return (0);
+		str++;
+	}
+	return (1);
+}
+
+int	ft_str_is_float(char *str)
 {
 	if (*str == '\0')
 		return (0);
