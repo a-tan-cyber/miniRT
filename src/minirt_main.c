@@ -113,11 +113,16 @@ char	**split_3_float_range(const char *string, const char *charset,
 	return (arr);
 }
 
-void	ins_vec3(t_cord *cord, float x, float y, float z)
+int	ins_vec3(t_cord *cord, const char *x, const char *y, const char *z)
 {
-	cord->x = x;
-	cord->y = y;
-	cord->z = z;
+	if (!cord)
+		return (ft_puterr("ins_vec3 cord value is NULL"), -1);
+	if (!ft_str_is_float(x) || !ft_str_is_float(y) || !ft_str_is_float(z))
+		return (ft_puterr("ensure string is float before insertion"), 1);
+	cord->x = ft_atof(x);
+	cord->y = ft_atof(y);
+	cord->z = ft_atof(z);
+	return (0);
 }
 
 // ◦Camera:
@@ -136,12 +141,14 @@ int	add_rt_data_d_c(const char **split_arr, t_cam *cam)
 	arr = split_3_float(split_arr[1], ",");
 	if (!arr)
 		return (ft_puterr("data.cam.cord error"), 2);
-	ins_vec3(cam->cord, ft_atof(arr[0]), ft_atof(arr[1]), ft_atof(arr[2]));
+	if (ins_vec3(cam->cord, arr[0], arr[1], arr[2]) != 0)
+		return (-1);
 	free_arr(arr);
 	arr = split_3_float_range(split_arr[2], ",", -1, 1);
 	if (!arr)
 		return (ft_puterr("data.cam.ori error"), 3);
-	ins_vec3(cam->ori, ft_atof(arr[0]), ft_atof(arr[1]), ft_atof(arr[2]));
+	if (ins_vec3(cam->ori, arr[0], arr[1], arr[2]))
+		return (-2);;
 	free_arr(arr);
 	if (validate_str_int_range(split_arr[3], "0", "180") == FALSE)
 		return (ft_puterr("data.cam FOV val invalid"), 4);
@@ -149,12 +156,59 @@ int	add_rt_data_d_c(const char **split_arr, t_cam *cam)
 	return (0);
 }
 
-char	**split_3_int_range(const char **arr, const char *charset,
-			const char *min, const char *max)
+char	**split_3_int(const char *string, const char *charset)
 {
-	
+	char	**arr;
+
+	if (!string || !charset)
+		return (NULL);
+	arr = ft_split(string, charset);
+	if (!arr)
+		return (ft_puterr("malloc failed"), NULL);
+	if (ft_arrlen(arr) != 3)
+		return (ft_puterr("wrong no. of int (rgb)"), free_arr(arr), NULL);
+	if (!ft_str_is_int(arr[0]) || !ft_str_is_int(arr[1])
+		|| !ft_str_is_int(arr[2]))
+		return (ft_puterr("rgb is not int"), free_arr(arr), NULL);
+	return (arr);
 }
-	ins_rgb(ligt->rgb, ft_atoi(arr[0]), ft_atoi(arr[1]), ft_atoi(arr[2]));
+
+char	**split_3_int_range(const char *string, const char *charset,
+			const char *min_str, const char *max_str)
+{
+	char	**arr;
+	int		curr;
+	int		min;
+	int		max;
+
+	arr = split_3_int(string, charset);
+	if (!arr)
+		return (NULL);
+	min = ft_atoi(min_str);
+	max = ft_atoi(max_str);
+	curr = ft_atoi(arr[0]);
+	if (curr < min || max < curr)
+		return (ft_puterr("int number r out of range"), free_arr(arr), NULL);
+	curr = ft_atof(arr[1]);
+	if (curr < min || max < curr)
+		return (ft_puterr("int number g out of range"), free_arr(arr), NULL);
+	curr = ft_atof(arr[2]);
+	if (curr < min || max < curr)
+		return (ft_puterr("int number b out of range"), free_arr(arr), NULL);
+	return (arr);
+}
+
+int	ins_rgb(t_rgb *rgb, const char *r, const char *g, const char *b)
+{
+	if (!rgb)
+		return (ft_puterr("ins_rgb rgb value is NULL"), -1);
+	if (!ft_str_is_int(r) || !ft_str_is_int(g) || !ft_str_is_int(b))
+		return (ft_puterr("ensure string is int before insertion"), 1);
+	rgb->r = ft_atoi(r);
+	rgb->g = ft_atoi(g);
+	rgb->b = ft_atoi(b);
+	return (0);
+}
 
 // ◦Light:
 // L -40.0,50.0,0.0 0.6 10,0,255
@@ -172,7 +226,8 @@ int	add_rt_data_d_l(const char **split_arr, t_ligt *ligt)
 	arr = split_3_float(split_arr[1], ",");
 	if (!arr)
 		return (ft_puterr("data.ligt.cord error"), 2);
-	ins_vec3(ligt->cord, ft_atof(arr[0]), ft_atof(arr[1]), ft_atof(arr[2]));
+	if (ins_vec3(ligt->cord, arr[0], arr[1], arr[2]))
+		return (-2);;
 	free_arr(arr);
 	if (validate_str_float_range(split_arr[2], 0, 1) == 0)
 		return (ft_puterr("data.ligt.bright error"), 3);
@@ -180,7 +235,8 @@ int	add_rt_data_d_l(const char **split_arr, t_ligt *ligt)
 	arr = split_3_int_range(split_arr[3], ",", "0", "255");
 	if (!arr)
 		return (ft_puterr("data.ligt.rgb error"), 4);
-	ins_rgb(ligt->rgb, ft_atoi(arr[0]), ft_atoi(arr[1]), ft_atoi(arr[2]));
+	if (ins_rgb(ligt->rgb, arr[0], arr[1], arr[2]))
+		return (-3);
 	free_arr(arr);
 	return (0);
 }
