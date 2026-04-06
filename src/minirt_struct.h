@@ -82,10 +82,13 @@ typedef struct	s_ligt	t_ligt;
 
 struct s_data
 {
+	t_bool			ambi_loaded;
 	t_ambi			ambi;
+	t_bool			cam_loaded;
 	t_cam			cam;
+	t_bool			ligt_loaded;
 	t_ligt			ligt;
-	struct s_obj	*next;
+	struct s_obj	*head;
 };
 
 typedef struct	s_data	t_data;

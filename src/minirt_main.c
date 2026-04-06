@@ -141,13 +141,13 @@ int	add_rt_data_d_c(const char **split_arr, t_cam *cam)
 	arr = split_3_float(split_arr[1], ",");
 	if (!arr)
 		return (ft_puterr("data.cam.cord error"), 2);
-	if (ins_vec3(cam->cord, arr[0], arr[1], arr[2]) != 0)
+	if (ins_vec3(&cam->cord, arr[0], arr[1], arr[2]) != 0)
 		return (-1);
 	free_arr(arr);
 	arr = split_3_float_range(split_arr[2], ",", -1, 1);
 	if (!arr)
 		return (ft_puterr("data.cam.ori error"), 3);
-	if (ins_vec3(cam->ori, arr[0], arr[1], arr[2]))
+	if (ins_vec3(&cam->ori, arr[0], arr[1], arr[2]))
 		return (-2);;
 	free_arr(arr);
 	if (validate_str_int_range(split_arr[3], "0", "180") == FALSE)
@@ -221,12 +221,12 @@ int	add_rt_data_d_l(const char **split_arr, t_ligt *ligt)
 {
 	char	**arr;
 
-	if (ft_arrlen(split_arr) != 3)
+	if (ft_arrlen(split_arr) != 4)
 		return (-1);
 	arr = split_3_float(split_arr[1], ",");
 	if (!arr)
 		return (ft_puterr("data.ligt.cord error"), 2);
-	if (ins_vec3(ligt->cord, arr[0], arr[1], arr[2]))
+	if (ins_vec3(&ligt->cord, arr[0], arr[1], arr[2]))
 		return (-2);;
 	free_arr(arr);
 	if (validate_str_float_range(split_arr[2], 0, 1) == 0)
@@ -235,7 +235,7 @@ int	add_rt_data_d_l(const char **split_arr, t_ligt *ligt)
 	arr = split_3_int_range(split_arr[3], ",", "0", "255");
 	if (!arr)
 		return (ft_puterr("data.ligt.rgb error"), 4);
-	if (ins_rgb(ligt->rgb, arr[0], arr[1], arr[2]))
+	if (ins_rgb(&ligt->rgb, arr[0], arr[1], arr[2]))
 		return (-3);
 	free_arr(arr);
 	return (0);
@@ -247,11 +247,26 @@ int	add_rt_data_d(const char **split_arr, t_data **data)
 
 	err = 0;
 	if (ft_strcmp(split_arr[0], "A") == 0)
+	{
+		if ((*data)->ambi_loaded == TRUE)
+			return (ft_puterr("duplicate ambient lighting"), -11);
+		(*data)->ambi_loaded = TRUE;
 		err = add_rt_data_d_a(split_arr, data);
+	}
 	if (ft_strcmp(split_arr[0], "C") == 0)
+	{
+		if ((*data)->cam_loaded == TRUE)
+			return (ft_puterr("duplicate camera setting"), -12);
+		(*data)->cam_loaded = TRUE;
 		err = add_rt_data_d_c(split_arr, (*data)->cam);
+	}
 	if (ft_strcmp(split_arr[0], "L") == 0)
+	{
+		if ((*data)->ligt_loaded == TRUE)
+			return (ft_puterr("duplicate light setting"), -13);
+		(*data)->ligt_loaded = TRUE;
 		err = add_rt_data_d_l(split_arr, (*data)->ligt);
+	}
 	return (err);
 }
 
@@ -306,14 +321,67 @@ int	initialise_rt(const char *str, t_obj **obj, t_data **data)
 	return (0);
 }
 
-	// if (initialise_minilibx(&data) != 0)
-	// 	return (4);
-	// if (calc_pixel(&obj, &data) != 0)
-	// 	return (5);
-	// if (add_event_hook(&data) != 0)
-	// 	return (6);
-	// if (run_window_loop(&obj, &data) != 0)
-	// 	return (7);
+// if (initialise_minilibx(&data) != 0)
+// 	return (4);
+// if (calc_pixel(&obj, &data) != 0)
+// 	return (5);
+// if (add_event_hook(&data) != 0)
+// 	return (6);
+// if (run_window_loop(&obj, &data) != 0)
+// 	return (7);
+// return (free_rt(&obj, &data), 0);
+
+void	initialise_t_cord(t_cord *cord)
+{
+	cord->x = 0;
+	cord->y = 0;
+	cord->z = 0;
+}
+
+void	initialise_t_rgb(t_rgb *rgb)
+{
+	rgb->r = -1;
+	rgb->g = -1;
+	rgb->b = -1;
+}
+
+void	initialise_t_obj(t_obj **obj)
+{
+	t_obj	*cur_obj;
+
+	cur_obj->type = -1;
+	initialise_t_cord(&cur_obj->cord);
+	cur_obj->dia = 0;
+	initialise_t_cord(&cur_obj->ori);
+	cur_obj->higt = 0;
+	initialise_t_rgb(&cur_obj->rgb);
+	cur_obj->next = NULL;
+	cur_obj->data = data;
+}
+
+void	initialise_t_data(t_data **data)
+{
+	t_data	*cur_data;
+
+	cur_data->ambi_loaded = FALSE;
+	cur_data->ambi.ratio = -1;
+	initialise_t_rgb(&cur_data->ambi.rgb);
+	cur_data->cam_loaded = FALSE;
+	initialise_t_cord(&cur_data->cam.cord);
+	initialise_t_cord(&cur_data->cam.ori);
+	cur_data->cam.fov = -1;
+	cur_data->ligt_loaded = FALSE;
+	initialise_t_cord(&cur_data->ligt.cord);
+	cur_data->ligt.bright = -1;
+	initialise_t_rgb(&cur_data->ligt.rgb);
+}
+
+void	initialise_structs(t_obj **obj, t_data **data)
+{
+	initialise_t_obj(obj);
+	initialise_t_data(data);
+}
+
 
 int	main(int argc, char **argv)
 {
@@ -326,6 +394,7 @@ int	main(int argc, char **argv)
 		return (ft_puterr("invalid extension"), 2);
 	obj = NULL;
 	data = NULL;
+	initialise_structs(&obj, &data);
 	if (initialise_rt(argv[1], &obj, &data) != 0)
 		return (free_rt(&obj, &data), 3);
 	if (initialise_minilibx(&data) != 0)
