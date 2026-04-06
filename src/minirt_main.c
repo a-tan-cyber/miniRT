@@ -243,7 +243,7 @@ int	add_rt_data_d_l(const char **split_arr, t_ligt *ligt)
 
 int	add_rt_data_d(const char **split_arr, t_data **data)
 {
-	int		err;
+	int	err;
 
 	err = 0;
 	if (ft_strcmp(split_arr[0], "A") == 0)
@@ -253,14 +253,14 @@ int	add_rt_data_d(const char **split_arr, t_data **data)
 		(*data)->ambi_loaded = TRUE;
 		err = add_rt_data_d_a(split_arr, data);
 	}
-	if (ft_strcmp(split_arr[0], "C") == 0)
+	else if (ft_strcmp(split_arr[0], "C") == 0)
 	{
 		if ((*data)->cam_loaded == TRUE)
 			return (ft_puterr("duplicate camera setting"), -12);
 		(*data)->cam_loaded = TRUE;
 		err = add_rt_data_d_c(split_arr, (*data)->cam);
 	}
-	if (ft_strcmp(split_arr[0], "L") == 0)
+	else if (ft_strcmp(split_arr[0], "L") == 0)
 	{
 		if ((*data)->ligt_loaded == TRUE)
 			return (ft_puterr("duplicate light setting"), -13);
@@ -270,7 +270,13 @@ int	add_rt_data_d(const char **split_arr, t_data **data)
 	return (err);
 }
 
-// if (add_rt_data_s(split_arr, obj) != 0)
+int	add_rt_data_s(const char **split_arr, t_obj **obj)
+{
+	int	err;
+
+	err = 0;
+	if (ft_strcmp(split_arr[0], "sp"))
+}
 
 int	add_rt_data(const char *trimmed, t_obj **obj, t_data **data)
 {
@@ -292,6 +298,9 @@ int	add_rt_data(const char *trimmed, t_obj **obj, t_data **data)
 		if (add_rt_data_s(split_arr, obj) != 0)
 			return (free_arr(split_arr), 2);
 	}
+	else
+		return (ft_puterr("invalid identifier: "), ft_puterr(split_arr[0]),
+			free_arr(split_arr), -2);
 	return (free_arr(split_arr), 0);
 }
 
