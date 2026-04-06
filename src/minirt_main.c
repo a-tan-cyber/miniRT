@@ -12,18 +12,38 @@
 
 #include "minirt.h"
 
-// ft_str_is_float
-// ft_atof
+int	ft_str_is_float(const char *s);
+float	ft_atof(const char *s);
 
 // if s1 is smaller than min or bigger than max, then return 0
 int	validate_str_int_range(const char *s1, const char *min, const char *max)
 {
 	if (!ft_str_is_int(s1) || !ft_str_is_int(min) || !ft_str_is_int(max))
 		return (ft_puterr("val is not an int"), 0);
+	if (ft_str_numcmp(min, max) == 1)
+		return (ft_puterr("int min is greater than max"), 0);
 	if (ft_str_numcmp(s1, min) == -1)
-		return (ft_puterr("val is too small"), 0);
+		return (ft_puterr("int val is too small"), 0);
 	if (ft_str_numcmp(s1, max) == 1)
-		return (ft_puterr("val is too large"), 0);
+		return (ft_puterr("int val is too large"), 0);
+	return (1);
+}
+
+int	validate_str_float_range(const char *s, float min, float max)
+{
+	float	target;
+
+	if (!s)
+		return (ft_puterr("missing float val"), 0);
+	if (min > max)
+		return (ft_puterr("float min > max"), 0);
+	if (!ft_str_is_float(s))
+		return (ft_puterr("val is not a float"), 0);
+	target = ft_atof(s);
+	if (target < min)
+		return (ft_puterr("float val too small"), 0);
+	if (target > max)
+		return (ft_puterr("float val too large"), 0);
 	return (1);
 }
 
@@ -45,13 +65,13 @@ int	add_rt_data_d_a(const char **split_arr, t_data **data)
 		return (ft_puterr("data.ambi wrong no. of rgb val"), free_arr(arr), 3);
 	if (validate_str_int_range(arr[0], "0", "255") == FALSE)
 		return (ft_puterr("data.ambi r value invalid"), free_arr(arr), 4);
-	(*data)->ambi.r = ft_atoi(arr[0]);
+	(*data)->ambi.rgb.r = ft_atoi(arr[0]);
 	if (validate_str_int_range(arr[1], "0", "255") == FALSE)
 		return (ft_puterr("data.ambi g value invalid"), free_arr(arr), 5);
-	(*data)->ambi.g = ft_atoi(arr[1]);
+	(*data)->ambi.rgb.g = ft_atoi(arr[1]);
 	if (validate_str_int_range(arr[2], "0", "255") == FALSE)
 		return (ft_puterr("data.ambi b value invalid"), free_arr(arr), 6);
-	(*data)->ambi.b = ft_atoi(arr[2]);
+	(*data)->ambi.rgb.b = ft_atoi(arr[2]);
 	return (free_arr(arr), 0);
 }
 
@@ -129,6 +149,13 @@ int	add_rt_data_d_c(const char **split_arr, t_cam *cam)
 	return (0);
 }
 
+char	**split_3_int_range(const char **arr, const char *charset,
+			const char *min, const char *max)
+{
+	
+}
+	ins_rgb(ligt->rgb, ft_atoi(arr[0]), ft_atoi(arr[1]), ft_atoi(arr[2]));
+
 // ◦Light:
 // L -40.0,50.0,0.0 0.6 10,0,255
 // ∗identifier: L
@@ -136,7 +163,27 @@ int	add_rt_data_d_c(const char **split_arr, t_cam *cam)
 // ∗the light brightness ratio in the range [0.0,1.0]: 0.6
 // ∗(unused in mandatory part) R, G, B colors in the range [0-255]: 10, 0,
 // 255
-// err = add_rt_data_d_l(split_arr, data);
+int	add_rt_data_d_l(const char **split_arr, t_ligt *ligt)
+{
+	char	**arr;
+
+	if (ft_arrlen(split_arr) != 3)
+		return (-1);
+	arr = split_3_float(split_arr[1], ",");
+	if (!arr)
+		return (ft_puterr("data.ligt.cord error"), 2);
+	ins_vec3(ligt->cord, ft_atof(arr[0]), ft_atof(arr[1]), ft_atof(arr[2]));
+	free_arr(arr);
+	if (validate_str_float_range(split_arr[2], 0, 1) == 0)
+		return (ft_puterr("data.ligt.bright error"), 3);
+	ligt->bright = ft_atof(split_arr[2]);
+	arr = split_3_int_range(split_arr[3], ",", "0", "255");
+	if (!arr)
+		return (ft_puterr("data.ligt.rgb error"), 4);
+	ins_rgb(ligt->rgb, ft_atoi(arr[0]), ft_atoi(arr[1]), ft_atoi(arr[2]));
+	free_arr(arr);
+	return (0);
+}
 
 int	add_rt_data_d(const char **split_arr, t_data **data)
 {
@@ -148,11 +195,9 @@ int	add_rt_data_d(const char **split_arr, t_data **data)
 	if (ft_strcmp(split_arr[0], "C") == 0)
 		err = add_rt_data_d_c(split_arr, (*data)->cam);
 	if (ft_strcmp(split_arr[0], "L") == 0)
-		err = add_rt_data_d_l(split_arr, data);
+		err = add_rt_data_d_l(split_arr, (*data)->ligt);
 	return (err);
 }
-
-
 
 // if (add_rt_data_s(split_arr, obj) != 0)
 

@@ -35,14 +35,16 @@ char	*ft_strchr(const char *str, int to_find);
 // char			*ft_strrchr(const char *str, int to_find);
 int		ft_strchr_idx(const char *str, int to_find);
 
+// ft_string_cmp.c
+t_bool	check_str_end(const char *s1, const char *end);
+int		ft_str_numcmp(const char *s1, const char *s2);
+
 // ft_string_cnt.c
 int		ft_count_cins(const char *str, char c);
 int		num_of_x_ignore_y_substr(const char *line, char x, char y);
 
 // ft_string_btcmp.c
 int		ft_str_is_subset(const char *pool, const char *legal);
-t_bool	check_str_end(const char *s1, const char *end);
-int		ft_str_numcmp(const char *s1, const char *s2);
 
 // ft_string_con.c
 char	*concat_char(char *string, char c);

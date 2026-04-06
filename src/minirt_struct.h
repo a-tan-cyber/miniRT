@@ -31,6 +31,15 @@ struct s_cord
 
 typedef struct	s_cord	t_cord;
 
+struct s_rgb
+{
+	int	r;
+	int	g;
+	int	b;
+};
+
+typedef struct	s_rgb	t_rgb;
+
 struct s_obj
 {
 	t_type			type;
@@ -38,9 +47,7 @@ struct s_obj
 	float			dia;
 	t_cord			ori;
 	float			higt;
-	int				r;
-	int				g;
-	int				b;
+	t_rgb			rgb;
 	struct s_obj	*next;
 	struct s_data	*data;
 };
@@ -50,9 +57,7 @@ typedef struct	s_obj	t_obj;
 struct s_ambi
 {
 	float	ratio;
-	int		r;
-	int		g;
-	int		b;
+	t_rgb	rgb;
 };
 
 typedef struct	s_ambi	t_ambi;
@@ -70,6 +75,7 @@ struct s_ligt
 {
 	t_cord	cord;
 	float	bright;
+	t_rgb	rgb;
 };
 
 typedef struct	s_ligt	t_ligt;
