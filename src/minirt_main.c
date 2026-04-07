@@ -142,13 +142,13 @@ int	add_rt_data_d_c(const char **split_arr, t_cam *cam)
 	if (!arr)
 		return (ft_puterr("data.cam.cord error"), 2);
 	if (ins_vec3(&cam->cord, arr[0], arr[1], arr[2]) != 0)
-		return (-1);
+		return (free_arr(arr), -1);
 	free_arr(arr);
 	arr = split_3_float_range(split_arr[2], ",", -1, 1);
 	if (!arr)
 		return (ft_puterr("data.cam.ori error"), 3);
 	if (ins_vec3(&cam->ori, arr[0], arr[1], arr[2]))
-		return (-2);;
+		return (free_arr(arr), -2);;
 	free_arr(arr);
 	if (validate_str_int_range(split_arr[3], "0", "180") == FALSE)
 		return (ft_puterr("data.cam FOV val invalid"), 4);
@@ -227,7 +227,7 @@ int	add_rt_data_d_l(const char **split_arr, t_ligt *ligt)
 	if (!arr)
 		return (ft_puterr("data.ligt.cord error"), 2);
 	if (ins_vec3(&ligt->cord, arr[0], arr[1], arr[2]))
-		return (-2);;
+		return (free_arr(arr), -2);
 	free_arr(arr);
 	if (validate_str_float_range(split_arr[2], 0, 1) == 0)
 		return (ft_puterr("data.ligt.bright error"), 3);
@@ -236,7 +236,7 @@ int	add_rt_data_d_l(const char **split_arr, t_ligt *ligt)
 	if (!arr)
 		return (ft_puterr("data.ligt.rgb error"), 4);
 	if (ins_rgb(&ligt->rgb, arr[0], arr[1], arr[2]))
-		return (-3);
+		return (free_arr(arr), -3);
 	free_arr(arr);
 	return (0);
 }
@@ -270,12 +270,141 @@ int	add_rt_data_d(const char **split_arr, t_data **data)
 	return (err);
 }
 
+/* 
+Sphere:
+sp 0.0,0.0,20.6 12.6 10,0,255
+∗identifier: sp
+∗x, y, z coordinates of the sphere center: 0.0,0.0,20.6
+∗the sphere diameter: 12.6
+∗R,G,B colors in the range [0-255]: 10, 0, 255
+ */
+int	add_rt_data_s_sp(const char **split_arr, t_obj *new)
+{
+	char	**arr;
+
+	if (ft_arrlen(split_arr) != 4)
+		return (-2);
+	arr = split_3_float(split_arr[1], ",");
+	if (!arr)
+		return (ft_puterr("obj.cord error"), 2);
+	if (ins_vec3(&new->cord, arr[0], arr[1], arr[2]))
+		return (free_arr(arr), -3);
+	free_arr(arr);
+	if (ft_atof(split_arr[2]) <= 0)
+		return (ft_puterr("obj.dia error"), 3);
+	new->dia = ft_atof(split_arr[2]);
+	arr = split_3_int_range(split_arr[3], ",", "0", "255");
+	if (!arr)
+		return (ft_puterr("obj.rgb error"), 4);
+	if (ins_rgb(&new->rgb, arr[0], arr[1], arr[2]))
+		return (free_arr(arr), -4);
+	return (free_arr(arr), 0);
+}
+
+/* 
+◦Plane:
+pl 0.0,0.0,-10.0 0.0,1.0,0.0 0,0,225
+∗identifier: pl
+∗x, y, z coordinates of a point in the plane: 0.0,0.0,-10.0
+∗3D normalized normal vector, in the range [-1,1] for each x, y, z axis:
+0.0,1.0,0.0
+∗R,G,B colors in the range [0-255]: 0,0,225
+ */
+int	add_rt_data_s_pl(const char **split_arr, t_obj *new)
+{
+	char	**arr;
+
+	if (ft_arrlen(split_arr) != 4)
+		return (-2);
+	arr = split_3_float(split_arr[1], ",");
+	if (!arr)
+		return (ft_puterr("obj.cord error"), 2);
+	if (ins_vec3(&new->cord, arr[0], arr[1], arr[2]))
+		return (free_arr(arr), -3);
+	free_arr(arr);
+	arr = split_3_float_range(split_arr[2], ",", -1, 1);
+	if (!arr)
+		return (ft_puterr("obj.ori error"), 2);
+	if (ins_vec3(&new->ori, arr[0], arr[1], arr[2]))
+		return (free_arr(arr), -3);
+	free_arr(arr);
+	arr = split_3_int_range(split_arr[3], ",", "0", "255");
+	if (!arr)
+		return (ft_puterr("obj.rgb error"), 4);
+	if (ins_rgb(&new->rgb, arr[0], arr[1], arr[2]))
+		return (free_arr(arr), -4);
+	return (free_arr(arr), 0);
+}
+
+int	val_ins_rgb(const char *string, t_obj *new)
+{
+	char	**arr;
+
+	arr = split_3_int_range(string, ",", "0", "255");
+	if (!arr)
+		return (ft_puterr("val_ins_rgb: error"), 4);
+	if (ins_rgb(&new->rgb, arr[0], arr[1], arr[2]))
+		return (free_arr(arr), -4);
+	free_arr(arr);
+	return (0);
+}
+
+/* 
+◦Cylinder:
+cy 50.0,0.0,20.6	0.0,0.0,1.0		14.2	21.42	10,0,255
+∗identifier: cy
+∗x, y, z coordinates of the center of the cylinder: 50.0,0.0,20.6
+∗3D normalized vector of axis of cylinder, in the range [-1,1] for each x, y,
+z axis: 0.0,0.0,1.0
+∗the cylinder diameter: 14.2
+∗the cylinder height: 21.42
+∗R, G, B colors in the range [0,255]: 10, 0, 255 
+*/
+int	add_rt_data_s_cy(const char **split_arr, t_obj *new)
+{
+	char	**arr;
+
+	if (ft_arrlen(split_arr) != 6)
+		return (-2);
+	arr = split_3_float(split_arr[1], ",");
+	if (!arr)
+		return (ft_puterr("cylinder obj.cord error"), 2);
+	if (ins_vec3(&new->cord, arr[0], arr[1], arr[2]))
+		return (free_arr(arr), -3);
+	free_arr(arr);
+	arr = split_3_float_range(split_arr[2], ",", -1, 1);
+	if (!arr)
+		return (ft_puterr("cylinder obj.ori error"), 2);
+	if (ins_vec3(&new->ori, arr[0], arr[1], arr[2]))
+		return (free_arr(arr), -3);
+	free_arr(arr);
+	if (ft_atof(split_arr[3]) <= 0 || ft_atof(split_arr[4]) <= 0)
+		return (ft_puterr("cylinder diameter <= 0 or height <= 0"), 3);
+	new->dia = ft_atof(split_arr[3]);
+	new->higt = ft_atof(split_arr[4]);
+	if (val_ins_rgb(split_arr[5], new) != 0)
+		return (ft_puterr("add_rt_data_s_cy: cylinder failed to ins rgb"), 4);
+	return (0);
+}
+
 int	add_rt_data_s(const char **split_arr, t_obj **obj)
 {
-	int	err;
+	int		err;
+	t_obj	*new;
 
+	new = cre_t_obj_next(go_t_obj_last(*obj));
+	if (!new)
+		return (ft_puterr("add_rt_data_s: failed to create new"), -1);
 	err = 0;
-	if (ft_strcmp(split_arr[0], "sp"))
+	if (ft_strcmp(split_arr[0], "sp") == 0)
+		err = add_rt_data_s_sp(split_arr, new);
+	else if (ft_strcmp(split_arr[0], "pl") == 0)
+		err = add_rt_data_s_pl(split_arr, new);
+	else if (ft_strcmp(split_arr[0], "cy") == 0)
+		err = add_rt_data_s_cy(split_arr, new);
+	else
+		return (ft_puterr("invalid shape identifier"), -11);
+	return (err);
 }
 
 int	add_rt_data(const char *trimmed, t_obj **obj, t_data **data)
@@ -299,7 +428,7 @@ int	add_rt_data(const char *trimmed, t_obj **obj, t_data **data)
 			return (free_arr(split_arr), 2);
 	}
 	else
-		return (ft_puterr("invalid identifier: "), ft_puterr(split_arr[0]),
+		return (ft_puterr("invalid data identifier: "), ft_puterr(split_arr[0]),
 			free_arr(split_arr), -2);
 	return (free_arr(split_arr), 0);
 }
@@ -364,6 +493,7 @@ void	initialise_t_obj(t_obj **obj)
 	initialise_t_cord(&cur_obj->ori);
 	cur_obj->higt = 0;
 	initialise_t_rgb(&cur_obj->rgb);
+	cur_obj->id	= -1;
 	cur_obj->next = NULL;
 	cur_obj->data = data;
 }
@@ -372,6 +502,7 @@ void	initialise_t_data(t_data **data)
 {
 	t_data	*cur_data;
 
+	cur_data = *data;
 	cur_data->ambi_loaded = FALSE;
 	cur_data->ambi.ratio = -1;
 	initialise_t_rgb(&cur_data->ambi.rgb);
@@ -387,7 +518,7 @@ void	initialise_t_data(t_data **data)
 
 void	initialise_structs(t_obj **obj, t_data **data)
 {
-	initialise_t_obj(obj);
+	void(obj);
 	initialise_t_data(data);
 }
 

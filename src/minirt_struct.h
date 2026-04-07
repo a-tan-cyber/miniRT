@@ -48,8 +48,8 @@ struct s_obj
 	t_cord			ori;
 	float			higt;
 	t_rgb			rgb;
+	int				id;
 	struct s_obj	*next;
-	struct s_data	*data;
 };
 
 typedef struct	s_obj	t_obj;
