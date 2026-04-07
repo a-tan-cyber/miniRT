@@ -459,15 +459,6 @@ int	initialise_rt(const char *str, t_obj **obj, t_data **data)
 	return (0);
 }
 
-// if (initialise_minilibx(&data) != 0)
-// 	return (4);
-// if (calc_pixel(&obj, &data) != 0)
-// 	return (5);
-// if (add_event_hook(&data) != 0)
-// 	return (6);
-// if (run_window_loop(&obj, &data) != 0)
-// 	return (7);
-// return (free_rt(&obj, &data), 0);
 
 void	initialise_t_cord(t_cord *cord)
 {
@@ -514,6 +505,13 @@ void	initialise_t_data(t_data **data)
 	initialise_t_cord(&cur_data->ligt.cord);
 	cur_data->ligt.bright = -1;
 	initialise_t_rgb(&cur_data->ligt.rgb);
+	cur_data->mlx = NULL;
+	cur_data->win = NULL;
+	cur_data->img = NULL;
+	cur_data->addr = NULL;
+	cur_data->bits_p_pixel = -1;
+	cur_data->size_line = -1;
+	cur_data->endian = -1;
 }
 
 void	initialise_structs(t_obj **obj, t_data **data)
@@ -522,6 +520,29 @@ void	initialise_structs(t_obj **obj, t_data **data)
 	initialise_t_data(data);
 }
 
+#define WIDTH 1024
+#define HEIGHT 1024
+
+int	initialise_minilibx(t_data **data)
+{
+	t_data	*curr;
+
+	curr = *data;
+	curr->mlx = mlx_init();
+	curr->win = mlx_new_window(curr->mlx, WIDTH, HEIGHT, "miniRT");
+	curr->img = mlx_new_image(curr->mlx, WIDTH, HEIGHT);
+	curr->addr = mlx_get_data_addr(curr->img, &curr->bits_p_pixel,
+				&curr->size_line, &curr->endian);
+	return (0);
+}
+
+// if (calc_pixel(&obj, &data) != 0)
+// 	return (5);
+// if (add_event_hook(&data) != 0)
+// 	return (6);
+// if (run_window_loop(&obj, &data) != 0)
+// 	return (7);
+// return (free_rt(&obj, &data), 0);
 
 int	main(int argc, char **argv)
 {

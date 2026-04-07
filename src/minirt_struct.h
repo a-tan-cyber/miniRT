@@ -82,13 +82,19 @@ typedef struct	s_ligt	t_ligt;
 
 struct s_data
 {
-	t_bool			ambi_loaded;
-	t_ambi			ambi;
-	t_bool			cam_loaded;
-	t_cam			cam;
-	t_bool			ligt_loaded;
-	t_ligt			ligt;
-	struct s_obj	*head;
+	t_bool	ambi_loaded;
+	t_ambi	ambi;
+	t_bool	cam_loaded;
+	t_cam	cam;
+	t_bool	ligt_loaded;
+	t_ligt	ligt;
+	void	*mlx;
+	void	*win;
+	void	*img;
+	char	*addr;
+	int		bits_p_pixel;
+	int		size_line;
+	int		endian;
 };
 
 typedef struct	s_data	t_data;
