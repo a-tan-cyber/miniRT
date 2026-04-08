@@ -565,6 +565,14 @@ float	ft_normalise_y(int y, float height, float fov)
 	return (res);
 }
 
+void	calc_orientation(xf, yf, data->cam.ori, ray)
+{
+	// t_cord	up;
+	// initialise_t_cord(&up);
+	// up.y = 1;
+
+}
+
 void	calc_ray_screen2obj(t_ray *ray, int x, int y, t_data *data)
 {
 	float	aspect_ratio;
@@ -576,9 +584,6 @@ void	calc_ray_screen2obj(t_ray *ray, int x, int y, t_data *data)
 	fov = ft_degree2radian(data->cam.fov);
 	xf = ft_normalise_x(x, WIDTH, aspect_ratio, fov);
 	yf = ft_normalise_y(y, HEIGHT, fov);
-	// t_cord	up;
-	// initialise_t_cord(&up);
-	// up.y = 1;
 	calc_orientation(xf, yf, data->cam.ori, ray);
 }
 
