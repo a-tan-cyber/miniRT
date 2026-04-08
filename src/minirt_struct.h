@@ -99,4 +99,14 @@ struct s_data
 
 typedef struct	s_data	t_data;
 
+// origin == cord; orientation == ori
+struct s_ray
+{
+	float	t;
+	t_cord	cord;
+	t_cord	ori;
+};
+
+typedef struct s_ray	t_ray;
+
 #endif

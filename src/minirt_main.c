@@ -520,8 +520,8 @@ void	initialise_structs(t_obj **obj, t_data **data)
 	initialise_t_data(data);
 }
 
-#define WIDTH 1024
-#define HEIGHT 1024
+#define WIDTH	256
+#define HEIGHT	256
 
 int	initialise_minilibx(t_data **data)
 {
@@ -536,8 +536,101 @@ int	initialise_minilibx(t_data **data)
 	return (0);
 }
 
-// if (calc_pixel(&obj, &data) != 0)
-// 	return (5);
+float	ft_degree2radian(int degree)
+{
+	float	res;
+
+	res = degree * M_PI / 180;
+	return (res);
+}
+
+float	ft_normalise_x(int x, float width, float aspect, float fov)
+{
+	float	res;
+
+	res = ((float)x + 0.5f) / width;
+	res = res * 2.0f - 1.0f;
+	res *= tan(fov / 2.0f);
+	res *= aspect;
+	return (res);
+}
+
+float	ft_normalise_y(int y, float height, float fov)
+{
+	float	res;
+
+	res = ((float)y + 0.5f) / height;
+	res = 1.0f - (2.0f * res);
+	res *= tan(fov / 2.0f);
+	return (res);
+}
+
+void	calc_ray_screen2obj(t_ray *ray, int x, int y, t_data *data)
+{
+	float	aspect_ratio;
+	float	fov;
+	float	xf;
+	float	yf;
+	
+	aspect_ratio = (float)WIDTH / (float)HEIGHT;
+	fov = ft_degree2radian(data->cam.fov);
+	xf = ft_normalise_x(x, WIDTH, aspect_ratio, fov);
+	yf = ft_normalise_y(y, HEIGHT, fov);
+	// t_cord	up;
+	// initialise_t_cord(&up);
+	// up.y = 1;
+	calc_orientation(xf, yf, data->cam.ori, ray);
+}
+
+t_obj	*calc_pixel_frt(int x, int y, t_obj *obj, t_data *data)
+{
+	t_obj	*frt;
+	t_ray	cur;
+
+	if (x < 0 || y < 0 || !obj || !data)
+		return (NULL);
+	cur.t = -1.0f;
+	initialise_t_cord(&cur.cord);
+	initialise_t_cord(&cur.ori);
+	calc_ray_screen2obj(&cur, x, y, data);
+	frt = NULL;
+	while (obj != NULL)
+	{
+		frt = calc_pixel_frt_s(&cur, frt, obj, data);
+		obj = obj->next;
+	}
+	return (frt);
+}
+
+int	calc_pixel_shape(x, y, cur, *data)
+{
+
+}
+
+int	calc_pixel(t_obj **obj, t_data **data)
+{
+	t_obj	*frt;
+	int		x;
+	int		y;
+
+	frt = NULL;
+	y = 0;
+	while (y < HEIGHT)
+	{
+		x = 0;
+		while (x < WIDTH)
+		{
+			frt = calc_pixel_frt(x, y, *obj, *data);
+			if (calc_pixel_shape(x, y, frt, *data) != 0)
+				return (1);
+			x++;
+		}
+		y++;
+	}
+	return (0);
+}
+
+
 // if (add_event_hook(&data) != 0)
 // 	return (6);
 // if (run_window_loop(&obj, &data) != 0)
