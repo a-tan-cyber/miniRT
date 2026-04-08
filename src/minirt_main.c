@@ -565,12 +565,28 @@ float	ft_normalise_y(int y, float height, float fov)
 	return (res);
 }
 
-void	calc_orientation(xf, yf, data->cam.ori, ray)
-{
-	// t_cord	up;
-	// initialise_t_cord(&up);
-	// up.y = 1;
 
+// r = vec3_cross(f, up);
+// f = vec3_normalise(ori);
+
+void	calc_orientation(float xf, float yf, t_cord ori, t_ray *ray)
+{
+	t_cord	f;
+	t_cord	r;
+	t_cord	up;
+
+	f = vec3_normalise(ori);
+	initialise_t_cord(&up);
+	if (f.x == 0.0f && (f.y == 1.0f || f.y == -1.0f) && f.z == 0.0f)
+		up.z = -1.0f;
+	else
+		up.y = 1.0f;
+	r = vec3_cross(f, up);
+	up = vec3_cross(r, f);
+	ray->ori.x = (xf * r.x) + (yf * up.x) + (1.0f * f.x);
+	ray->ori.y = (xf * r.y) + (yf * up.y) + (1.0f * f.y);
+	ray->ori.z = (xf * r.z) + (yf * up.z) + (1.0f * f.z);
+	ray->ori = vec3_normalise(ray->ori);
 }
 
 void	calc_ray_screen2obj(t_ray *ray, int x, int y, t_data *data)
