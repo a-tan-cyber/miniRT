@@ -567,7 +567,10 @@ float	ft_normalise_y(int y, float height, float fov)
 
 
 // r = vec3_cross(f, up);
-// f = vec3_normalise(ori);
+t_cord	vec3_normalise(t_cord ori, int width, int height)
+{
+	
+}
 
 void	calc_orientation(float xf, float yf, t_cord ori, t_ray *ray)
 {
@@ -586,7 +589,7 @@ void	calc_orientation(float xf, float yf, t_cord ori, t_ray *ray)
 	ray->ori.x = (xf * r.x) + (yf * up.x) + (1.0f * f.x);
 	ray->ori.y = (xf * r.y) + (yf * up.y) + (1.0f * f.y);
 	ray->ori.z = (xf * r.z) + (yf * up.z) + (1.0f * f.z);
-	ray->ori = vec3_normalise(ray->ori);
+	ray->ori = vec3_normalise(ray->ori, WIDTH, HEIGHT);
 }
 
 void	calc_ray_screen2obj(t_ray *ray, int x, int y, t_data *data)
