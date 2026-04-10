@@ -14,6 +14,7 @@
 
 int	ft_str_is_float(const char *s);
 float	ft_atof(const char *s);
+double	ft_atod(const char *s);
 
 // if s1 is smaller than min or bigger than max, then return 0
 int	validate_str_int_range(const char *s1, const char *min, const char *max)
@@ -55,7 +56,7 @@ int	add_rt_data_d_a(const char **split_arr, t_data **data)
 		return (-1);
 	if (ft_str_is_float(split_arr[1]) == FALSE)
 		return (ft_puterr("data.ambi ratio is not float"), 1);
-	(*data)->ambi.ratio = ft_atof(split_arr[1]);
+	(*data)->ambi.ratio = ft_atod(split_arr[1]);
 	if ((*data)->ambi.ratio > 1.0 || (*data)->ambi.ratio < 0.0)
 		return (ft_puterr("data.ambi value is out of range"), -2);
 	arr = ft_split(split_arr[2], ",");
@@ -92,24 +93,24 @@ char	**split_3_float(const char *string, const char *charset)
 	return (arr);
 }
 
-char	**split_3_float_range(const char *string, const char *charset,
-			float min, float max)
+char	**split_3_double_range(const char *string, const char *charset,
+			double min, double max)
 {
 	char	**arr;
-	float	curr;
+	double	curr;
 
 	arr = split_3_float(string, charset);
 	if (!arr)
 		return (NULL);
-	curr = ft_atof(arr[0]);
+	curr = ft_atod(arr[0]);
 	if (curr < min || max < curr)
-		return (ft_puterr("float number x out of range"), free_arr(arr), NULL);
-	curr = ft_atof(arr[1]);
+		return (ft_puterr("double number x out of range"), free_arr(arr), NULL);
+	curr = ft_atod(arr[1]);
 	if (curr < min || max < curr)
-		return (ft_puterr("float number y out of range"), free_arr(arr), NULL);
-	curr = ft_atof(arr[2]);
+		return (ft_puterr("double number y out of range"), free_arr(arr), NULL);
+	curr = ft_atod(arr[2]);
 	if (curr < min || max < curr)
-		return (ft_puterr("float number z out of range"), free_arr(arr), NULL);
+		return (ft_puterr("double number z out of range"), free_arr(arr), NULL);
 	return (arr);
 }
 
@@ -119,9 +120,9 @@ int	ins_vec3(t_cord *cord, const char *x, const char *y, const char *z)
 		return (ft_puterr("ins_vec3 cord value is NULL"), -1);
 	if (!ft_str_is_float(x) || !ft_str_is_float(y) || !ft_str_is_float(z))
 		return (ft_puterr("ensure string is float before insertion"), 1);
-	cord->x = ft_atof(x);
-	cord->y = ft_atof(y);
-	cord->z = ft_atof(z);
+	cord->x = ft_atod(x);
+	cord->y = ft_atod(y);
+	cord->z = ft_atod(z);
 	return (0);
 }
 
@@ -144,7 +145,7 @@ int	add_rt_data_d_c(const char **split_arr, t_cam *cam)
 	if (ins_vec3(&cam->cord, arr[0], arr[1], arr[2]) != 0)
 		return (free_arr(arr), -1);
 	free_arr(arr);
-	arr = split_3_float_range(split_arr[2], ",", -1, 1);
+	arr = split_3_double_range(split_arr[2], ",", -1, 1);
 	if (!arr)
 		return (ft_puterr("data.cam.ori error"), 3);
 	if (ins_vec3(&cam->ori, arr[0], arr[1], arr[2]))
@@ -189,10 +190,10 @@ char	**split_3_int_range(const char *string, const char *charset,
 	curr = ft_atoi(arr[0]);
 	if (curr < min || max < curr)
 		return (ft_puterr("int number r out of range"), free_arr(arr), NULL);
-	curr = ft_atof(arr[1]);
+	curr = ft_atoi(arr[1]);
 	if (curr < min || max < curr)
 		return (ft_puterr("int number g out of range"), free_arr(arr), NULL);
-	curr = ft_atof(arr[2]);
+	curr = ft_atoi(arr[2]);
 	if (curr < min || max < curr)
 		return (ft_puterr("int number b out of range"), free_arr(arr), NULL);
 	return (arr);
@@ -231,7 +232,7 @@ int	add_rt_data_d_l(const char **split_arr, t_ligt *ligt)
 	free_arr(arr);
 	if (validate_str_float_range(split_arr[2], 0, 1) == 0)
 		return (ft_puterr("data.ligt.bright error"), 3);
-	ligt->bright = ft_atof(split_arr[2]);
+	ligt->bright = ft_atod(split_arr[2]);
 	arr = split_3_int_range(split_arr[3], ",", "0", "255");
 	if (!arr)
 		return (ft_puterr("data.ligt.rgb error"), 4);
@@ -258,14 +259,14 @@ int	add_rt_data_d(const char **split_arr, t_data **data)
 		if ((*data)->cam_loaded == TRUE)
 			return (ft_puterr("duplicate camera setting"), -12);
 		(*data)->cam_loaded = TRUE;
-		err = add_rt_data_d_c(split_arr, (*data)->cam);
+		err = add_rt_data_d_c(split_arr, &(*data)->cam);
 	}
 	else if (ft_strcmp(split_arr[0], "L") == 0)
 	{
 		if ((*data)->ligt_loaded == TRUE)
 			return (ft_puterr("duplicate light setting"), -13);
 		(*data)->ligt_loaded = TRUE;
-		err = add_rt_data_d_l(split_arr, (*data)->ligt);
+		err = add_rt_data_d_l(split_arr, &(*data)->ligt);
 	}
 	return (err);
 }
@@ -292,7 +293,7 @@ int	add_rt_data_s_sp(const char **split_arr, t_obj *new)
 	free_arr(arr);
 	if (ft_atof(split_arr[2]) <= 0)
 		return (ft_puterr("obj.dia error"), 3);
-	new->dia = ft_atof(split_arr[2]);
+	new->dia = ft_atod(split_arr[2]);
 	arr = split_3_int_range(split_arr[3], ",", "0", "255");
 	if (!arr)
 		return (ft_puterr("obj.rgb error"), 4);
@@ -322,7 +323,7 @@ int	add_rt_data_s_pl(const char **split_arr, t_obj *new)
 	if (ins_vec3(&new->cord, arr[0], arr[1], arr[2]))
 		return (free_arr(arr), -3);
 	free_arr(arr);
-	arr = split_3_float_range(split_arr[2], ",", -1, 1);
+	arr = split_3_double_range(split_arr[2], ",", -1, 1);
 	if (!arr)
 		return (ft_puterr("obj.ori error"), 2);
 	if (ins_vec3(&new->ori, arr[0], arr[1], arr[2]))
@@ -372,7 +373,7 @@ int	add_rt_data_s_cy(const char **split_arr, t_obj *new)
 	if (ins_vec3(&new->cord, arr[0], arr[1], arr[2]))
 		return (free_arr(arr), -3);
 	free_arr(arr);
-	arr = split_3_float_range(split_arr[2], ",", -1, 1);
+	arr = split_3_double_range(split_arr[2], ",", -1, 1);
 	if (!arr)
 		return (ft_puterr("cylinder obj.ori error"), 2);
 	if (ins_vec3(&new->ori, arr[0], arr[1], arr[2]))
@@ -380,8 +381,8 @@ int	add_rt_data_s_cy(const char **split_arr, t_obj *new)
 	free_arr(arr);
 	if (ft_atof(split_arr[3]) <= 0 || ft_atof(split_arr[4]) <= 0)
 		return (ft_puterr("cylinder diameter <= 0 or height <= 0"), 3);
-	new->dia = ft_atof(split_arr[3]);
-	new->higt = ft_atof(split_arr[4]);
+	new->dia = ft_atod(split_arr[3]);
+	new->higt = ft_atod(split_arr[4]);
 	if (val_ins_rgb(split_arr[5], new) != 0)
 		return (ft_puterr("add_rt_data_s_cy: cylinder failed to ins rgb"), 4);
 	return (0);
@@ -403,7 +404,7 @@ int	add_rt_data_s(const char **split_arr, t_obj **obj)
 	else if (ft_strcmp(split_arr[0], "cy") == 0)
 		err = add_rt_data_s_cy(split_arr, new);
 	else
-		return (ft_puterr("invalid shape identifier"), -11);
+		return (ft_puterr("invalid shape identifier"), ft_sfree(&new), -11);
 	return (err);
 }
 
@@ -414,7 +415,7 @@ int	add_rt_data(const char *trimmed, t_obj **obj, t_data **data)
 
 	split_arr = ft_split(trimmed, " ");
 	if (!split_arr || !split_arr[0])
-		return (-1);
+		return (free_arr(split_arr), -1);
 	curr = split_arr[0];
 	if (!ft_strcmp(curr, "A") || !ft_strcmp(curr, "C") || !ft_strcmp(curr, "L"))
 	{
@@ -440,7 +441,7 @@ int	initialise_rt(const char *str, t_obj **obj, t_data **data)
 	int		fd;
 
 	fd = open(str, O_RDONLY);
-	if (fd <= 0)
+	if (fd < 0)
 		return (1);
 	line = get_next_line(fd);
 	while (line != NULL)
@@ -478,6 +479,7 @@ void	initialise_t_obj(t_obj **obj)
 {
 	t_obj	*cur_obj;
 
+	cur_obj = *obj;
 	cur_obj->type = -1;
 	initialise_t_cord(&cur_obj->cord);
 	cur_obj->dia = 0;
@@ -486,14 +488,10 @@ void	initialise_t_obj(t_obj **obj)
 	initialise_t_rgb(&cur_obj->rgb);
 	cur_obj->id	= -1;
 	cur_obj->next = NULL;
-	cur_obj->data = data;
 }
 
-void	initialise_t_data(t_data **data)
+void	initialise_t_data(t_data *cur_data)
 {
-	t_data	*cur_data;
-
-	cur_data = *data;
 	cur_data->ambi_loaded = FALSE;
 	cur_data->ambi.ratio = -1;
 	initialise_t_rgb(&cur_data->ambi.rgb);
@@ -514,10 +512,14 @@ void	initialise_t_data(t_data **data)
 	cur_data->endian = -1;
 }
 
-void	initialise_structs(t_obj **obj, t_data **data)
+int	initialise_structs(t_obj **obj, t_data **data)
 {
 	void(obj);
-	initialise_t_data(data);
+	*data = malloc(sizeof(t_data));
+	if (!(*data))
+		return (ft_puterr("initialise_structs (*data) malloc failed"), 1);
+	initialise_t_data(*data);
+	return (0);
 }
 
 #define WIDTH	256
@@ -529,50 +531,80 @@ int	initialise_minilibx(t_data **data)
 
 	curr = *data;
 	curr->mlx = mlx_init();
+	if (!curr->mlx)
+		return (ft_puterr("initialise_minilibx: failed to initialise curr->mlx"), 1);
 	curr->win = mlx_new_window(curr->mlx, WIDTH, HEIGHT, "miniRT");
+	if (!curr->win)
+		return (ft_puterr("initialise_minilibx: failed to initialise curr->win"), 2);
 	curr->img = mlx_new_image(curr->mlx, WIDTH, HEIGHT);
+	if (!curr->img)
+		return (ft_puterr("initialise_minilibx: failed to initialise curr->img"), 3);
 	curr->addr = mlx_get_data_addr(curr->img, &curr->bits_p_pixel,
-				&curr->size_line, &curr->endian);
+		&curr->size_line, &curr->endian);
+	if (!curr->addr)
+		return (ft_puterr("initialise_minilibx: failed to initialise curr->addr"), 4);
 	return (0);
 }
 
-float	ft_degree2radian(int degree)
+double	ft_degree2radian(int degree)
 {
-	float	res;
+	double	res;
 
 	res = degree * M_PI / 180;
 	return (res);
 }
 
-float	ft_normalise_x(int x, float width, float aspect, float fov)
+double	ft_normalise_x(int x, double width, double aspect, double fov)
 {
-	float	res;
+	double	res;
 
-	res = ((float)x + 0.5f) / width;
+	res = ((double)x + 0.5f) / width;
 	res = res * 2.0f - 1.0f;
 	res *= tan(fov / 2.0f);
 	res *= aspect;
 	return (res);
 }
 
-float	ft_normalise_y(int y, float height, float fov)
+double	ft_normalise_y(int y, double height, double fov)
 {
-	float	res;
+	double	res;
 
-	res = ((float)y + 0.5f) / height;
+	res = ((double)y + 0.5f) / height;
 	res = 1.0f - (2.0f * res);
 	res *= tan(fov / 2.0f);
 	return (res);
 }
 
 
-// r = vec3_cross(f, up);
-t_cord	vec3_normalise(t_cord ori, int width, int height)
+t_cord	vec3_cross(t_cord f, t_cord up)
 {
-	
+	t_cord	res;
+
+	initialise_t_cord(&res);
+	res.x = (f.y * up.z) - (up.y * f.z);
+	res.y = (up.x * f.z) - (f.x * up.z);
+	res.z = (f.x * up.y) - (up.x * f.y);
+	return (res);
 }
 
-void	calc_orientation(float xf, float yf, t_cord ori, t_ray *ray)
+t_cord	vec3_normalise(t_cord ori)
+{
+	t_cord	res;
+	double	mag;
+
+	mag = (ori.x * ori.x) + (ori.y * ori.y) + (ori.z * ori.z);
+	mag = sqrt(mag);
+	initialise_t_cord(&res);
+	if (mag > 0)
+	{
+		res.x = ori.x / mag;
+		res.y = ori.y / mag;
+		res.z = ori.z / mag;
+	}
+	return (res);
+}
+
+void	calc_orientation(double xf, double yf, t_cord ori, t_ray *ray)
 {
 	t_cord	f;
 	t_cord	r;
@@ -589,21 +621,26 @@ void	calc_orientation(float xf, float yf, t_cord ori, t_ray *ray)
 	ray->ori.x = (xf * r.x) + (yf * up.x) + (1.0f * f.x);
 	ray->ori.y = (xf * r.y) + (yf * up.y) + (1.0f * f.y);
 	ray->ori.z = (xf * r.z) + (yf * up.z) + (1.0f * f.z);
-	ray->ori = vec3_normalise(ray->ori, WIDTH, HEIGHT);
+	ray->ori = vec3_normalise(ray->ori);
 }
 
 void	calc_ray_screen2obj(t_ray *ray, int x, int y, t_data *data)
 {
-	float	aspect_ratio;
-	float	fov;
-	float	xf;
-	float	yf;
+	double	aspect_ratio;
+	double	fov;
+	double	xf;
+	double	yf;
 	
 	aspect_ratio = (float)WIDTH / (float)HEIGHT;
 	fov = ft_degree2radian(data->cam.fov);
 	xf = ft_normalise_x(x, WIDTH, aspect_ratio, fov);
 	yf = ft_normalise_y(y, HEIGHT, fov);
 	calc_orientation(xf, yf, data->cam.ori, ray);
+}
+
+t_obj	*calc_pixel_frt_s(t_ray *cur, t_obj *frt, t_obj *obj, t_data *data)
+{
+
 }
 
 t_obj	*calc_pixel_frt(int x, int y, t_obj *obj, t_data *data)
@@ -672,16 +709,17 @@ int	main(int argc, char **argv)
 		return (ft_puterr("invalid extension"), 2);
 	obj = NULL;
 	data = NULL;
-	initialise_structs(&obj, &data);
-	if (initialise_rt(argv[1], &obj, &data) != 0)
+	if (initialise_structs(&obj, &data) != 0)
 		return (free_rt(&obj, &data), 3);
-	if (initialise_minilibx(&data) != 0)
+	if (initialise_rt(argv[1], &obj, &data) != 0)
 		return (free_rt(&obj, &data), 4);
-	if (calc_pixel(&obj, &data) != 0)
+	if (initialise_minilibx(&data) != 0)
 		return (free_rt(&obj, &data), 5);
-	if (add_event_hook(&data) != 0)
+	if (calc_pixel(&obj, &data) != 0)
 		return (free_rt(&obj, &data), 6);
-	if (run_window_loop(&obj, &data) != 0)
+	if (add_event_hook(&data) != 0)
 		return (free_rt(&obj, &data), 7);
+	if (run_window_loop(&obj, &data) != 0)
+		return (free_rt(&obj, &data), 8);
 	return (free_rt(&obj, &data), 0);
 }

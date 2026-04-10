@@ -24,9 +24,9 @@ typedef	enum	e_type	t_type;
 
 struct s_cord
 {
-	float	x;
-	float	y;
-	float	z;
+	double	x;
+	double	y;
+	double	z;
 };
 
 typedef struct	s_cord	t_cord;
@@ -44,9 +44,9 @@ struct s_obj
 {
 	t_type			type;
 	t_cord			cord;
-	float			dia;
+	double			dia;
 	t_cord			ori;
-	float			higt;
+	double			higt;
 	t_rgb			rgb;
 	int				id;
 	struct s_obj	*next;
@@ -56,7 +56,7 @@ typedef struct	s_obj	t_obj;
 
 struct s_ambi
 {
-	float	ratio;
+	double	ratio;
 	t_rgb	rgb;
 };
 
@@ -74,7 +74,7 @@ typedef struct	s_cam	t_cam;
 struct s_ligt
 {
 	t_cord	cord;
-	float	bright;
+	double	bright;
 	t_rgb	rgb;
 };
 
@@ -102,7 +102,7 @@ typedef struct	s_data	t_data;
 // origin == cord; orientation == ori
 struct s_ray
 {
-	float	t;
+	double	t;
 	t_cord	cord;
 	t_cord	ori;
 };
