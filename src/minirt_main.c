@@ -638,26 +638,117 @@ void	calc_ray_screen2obj(t_ray *ray, int x, int y, t_data *data)
 	calc_orientation(xf, yf, data->cam.ori, ray);
 }
 
-t_obj	*calc_pixel_frt_s(t_ray *cur, t_obj *frt, t_obj *obj, t_data *data)
+vec3_dot(ray->ori, ray->ori);
+vec3_sub(ray->cord, obj->cord);
+double	ft_discriminant(double a, double b, double c)
 {
+	return ((b * b) - (4.0 * a * c));
+}
 
+double	ft_solve_quadratic_abd_near(double a, double b, double delta)
+{
+	double	t1;
+	double	t2;
+
+	t2 = (-b - sqrt(delta)) / (2.0 * a);
+	if (t2 >= 0)
+		return (t2);
+	t1 = (-b + sqrt(delta)) / (2.0 * a);
+	if (t1 >= 0)
+		return (t1);
+	return (-1);
+}
+
+double	calc_intersect_sp(t_ray *ray, t_obj *obj)
+{
+	double	a;
+	double	b;
+	double	c;
+	t_cord	tmp;
+	double	r;
+
+	a = vec3_dot(ray->ori, ray->ori);
+	b = 2 * (vec3_dot(ray->ori, (vec3_sub(ray->cord, obj->cord))));
+	tmp = vec3_sub(ray->cord, obj->cord);
+	r = obj->dia / 2.0;
+	c = vec3_dot(tmp, tmp) - (r * r);
+	r = ft_discriminant(a, b, c);
+	if (r >= 0)
+		return (ft_solve_quadratic_abd_near(a, b, r));
+	return (-1);
+}
+
+double	calc_intersect_pl(t_ray *ray, t_obj *obj)
+{
+	
+}
+
+double	calc_intersect_cy(t_ray *ray, t_obj *obj)
+{
+	
+}
+
+
+double	calc_ray_t(t_ray *ray, t_obj *obj)
+{
+	double	res;
+
+	res = -1.0;
+	if (obj->type == SP)
+	{
+		res = calc_intersect_sp(ray, obj);
+	}
+	else if (obj->type == PL)
+	{
+		res = calc_intersect_pl(ray, obj);
+	}
+	else if (obj->type == CY)
+	{
+		res = calc_intersect_cy(ray, obj);
+	}
+	return (res);
+}
+
+#define EPSILON 1e-8
+
+t_obj	*calc_pixel_frt_s(t_ray *ray, t_obj *frt, t_obj *obj, t_data *data)
+{
+	double	near;
+	double	curr;
+
+	if (frt == NULL)
+	{
+		curr = calc_ray_t(ray, obj);
+		if (curr <= EPSILON)
+			return (NULL);
+		ray->t = curr;
+		return (obj);
+	}
+	near = ray->t;
+	curr = calc_ray_t(ray, obj);
+	if (curr >= EPSILON && near > curr)
+	{
+		ray->t = curr;
+		return (obj);
+	}
+	return (frt);
 }
 
 t_obj	*calc_pixel_frt(int x, int y, t_obj *obj, t_data *data)
 {
 	t_obj	*frt;
-	t_ray	cur;
+	t_ray	ray;
 
 	if (x < 0 || y < 0 || !obj || !data)
 		return (NULL);
-	cur.t = -1.0f;
-	initialise_t_cord(&cur.cord);
-	initialise_t_cord(&cur.ori);
-	calc_ray_screen2obj(&cur, x, y, data);
+	ray.t = -1.0f;
+	initialise_t_cord(&ray.cord);
+	initialise_t_cord(&ray.ori);
+	calc_ray_screen2obj(&ray, x, y, data);
 	frt = NULL;
 	while (obj != NULL)
 	{
-		frt = calc_pixel_frt_s(&cur, frt, obj, data);
+		frt = calc_pixel_frt_s(&ray, frt, obj, data);
 		obj = obj->next;
 	}
 	return (frt);
