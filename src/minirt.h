@@ -15,6 +15,9 @@
 
 #define _USE_MATH_DEFINES
 # include <math.h>
+# include <float.h>
+
+#define EPSILON 1e-8
 
 # include "../libft/include/libft.h"
 # include "../minilibx-linux/mlx.h"

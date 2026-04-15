@@ -22,6 +22,19 @@ enum e_type
 
 typedef	enum	e_type	t_type;
 
+struct s_calc
+{
+	double	a;
+	double	b;
+	double	c;
+	double	sto1;
+	double	sto2;
+	double	delta;
+	t_cord	x;
+};
+
+typedef struct	s_calc	t_calc;
+
 struct s_cord
 {
 	double	x;
@@ -40,6 +53,7 @@ struct s_rgb
 
 typedef struct	s_rgb	t_rgb;
 
+// ori is the direction/orientation, cord is the origin/coordinate
 struct s_obj
 {
 	t_type			type;
@@ -48,6 +62,7 @@ struct s_obj
 	t_cord			ori;
 	double			higt;
 	t_rgb			rgb;
+	double			plane_constant;
 	int				id;
 	struct s_obj	*next;
 };
