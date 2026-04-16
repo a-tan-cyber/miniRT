@@ -894,7 +894,7 @@ double	calc_ray_t(t_ray *ray, t_obj *obj)
 }
 
 
-t_obj	*calc_pixel_frt_s(t_ray *ray, t_obj *frt, t_obj *obj, t_data *data)
+t_obj	*calc_pixel_frt_s(t_ray *ray, t_obj *frt, t_obj *obj)
 {
 	double	near;
 	double	curr;
@@ -917,34 +917,177 @@ t_obj	*calc_pixel_frt_s(t_ray *ray, t_obj *frt, t_obj *obj, t_data *data)
 	return (frt);
 }
 
-t_obj	*calc_pixel_frt(int x, int y, t_obj *obj, t_data *data)
+t_obj	*calc_pixel_frt(t_ray *ray, t_obj *obj)
 {
 	t_obj	*frt;
-	t_ray	ray;
 
-	if (x < 0 || y < 0 || !obj || !data)
+	if (!ray || !obj)
 		return (NULL);
-	ray.t = -1.0f;
-	initialise_t_cord(&ray.cord);
-	initialise_t_cord(&ray.ori);
-	calc_ray_screen2obj(&ray, x, y, data);
 	frt = NULL;
 	while (obj != NULL)
 	{
-		frt = calc_pixel_frt_s(&ray, frt, obj, data);
+		frt = calc_pixel_frt_s(&ray, frt, obj);
 		obj = obj->next;
 	}
 	return (frt);
 }
 
-int	calc_pixel_shape(x, y, cur, *data)
+void	initialise_t_ray(t_ray *ray)
+{
+	ray->t = -1.0f;
+	initialise_t_cord(&ray->cord);
+	initialise_t_cord(&ray->ori);
+}
+
+// t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
+// {
+// 	t_rgb	ambi;
+// 	t_rgb	light;
+// 	t_ray	shadow;
+// 	t_cord	p;
+// 	t_cord	sur_vec;
+// 	t_cord	s2l_vec;
+
+// 	initialise_t_rgb(&light);
+// 	if (!ray || !cur || !obj || !data)
+// 		return (light);
+// 	//ambient light
+// 	// light.r = data->ambi.ratio * data->ambi.rgb.r;
+// 	// light.g = data->ambi.ratio * data->ambi.rgb.g;
+// 	// light.b = data->ambi.ratio * data->ambi.rgb.b;
+// 	ambi = rgb_amp_capped(data->ambi.rgb, data->ambi.ratio);
+// 	//surface normal
+// 	p = calc_point(ray);
+// 	// sur_vec = vec3_sub(p, obj->cord);
+// 	// sur_vec = vec3_normalise(sur_vec);
+// 	sur_vec = calc_surface_normal(p, cur);
+// 	//vector: surface to light
+// 	s2l_vec = vec3_sub(data->ligt.cord, p);
+// 	s2l_vec = vec3_normalise(s2l_vec);
+// 	//hard shadows
+// 	initialise_t_ray(&shadow);
+// 	shadow.cord = vec3_sub(p, vec3_mul(sur_vec, EPSILON));
+// 	shadow.ori = s2l_vec;
+// 	calc_pixel_frt(&shadow, obj);
+// 	double	factor;
+// 	factor = vec3_dot(sur_vec, s2l_vec);
+// 	if (shadow.t <= EPSILON || (shadow.t + EPSILON) * (shadow.t + EPSILON) >= vec3_dot(vec3_sub(p, data->ligt.cord), vec3_sub(p, data->ligt.cord)))
+// 	{
+// 		//add diffuse light
+// 		light = rgb_amp_capped(data->ligt.rgb, data->ligt.bright);
+// 		light = rgb_mix(cur->rgb, light);
+// 		factor = ft_max_dbl(0, factor);
+// 		light = rgb_amp_capped(light, factor);
+// 		light = rgb3_add(ambi, light);
+// 		rgb_amp_capped(light, -1);
+// 		return (light);
+// 	}
+// 	return (ambi);
+// }
+
+t_rgb	rgb_amp_capped(t_rgb rgb, double ratio)
+{
+	rgb.r = (double)rgb.r * ratio;
+	rgb.r = ft_min(rgb.r, 255);
+	rgb.g = (double)rgb.g * ratio;
+	rgb.g = ft_min(rgb.g, 255);
+	rgb.b = (double)rgb.b * ratio;
+	rgb.b = ft_min(rgb.b, 255);
+	return (rgb);
+}
+
+t_cord	calc_point(t_ray *ray)
+{
+	t_cord	res;
+
+	initialise_t_cord(&res);
+	res = vec3_mul(ray->ori, ray->t);
+	res = vec3_add(ray->cord, res);
+	return (res);
+}
+
+double	calc_surface_normal_cy_distance(t_cord p, t_obj *cur)
+{
+	t_cord	vector;
+	double	res;
+
+	initialise_t_cord(&vector);
+	vector = vec3_sub(p, cur->cord);
+	res = vec3_dot(vector, cur->ori);
+	return (res);
+}
+
+t_cord	calc_surface_normal(t_cord p, t_obj *cur)
+{
+	t_cord	res;
+	double	m;
+	t_cord	new_center;
+
+	initialise_t_cord(&res);
+	if		(cur->type == SP)
+		res = vec3_sub(p, cur->cord);
+	else if (cur->type == PL)
+		res = cur->ori;
+	else if (cur->type == CY)
+	{
+		m = calc_surface_normal_cy_distance(p, cur);
+		if (-cur->higt / 2 < m && m < cur->higt / 2)
+		{
+			new_center = vec3_mul(cur->ori, m);
+			new_center = vec3_add(new_center, cur->cord);
+			res = vec3_sub(p, new_center);
+		}
+		else if (m < 0)
+			res = vec3_mul(cur->ori, -1);
+		else
+			res = cur->ori;
+	}
+	res = vec3_normalise(res);
+	return (res);
+}
+
+t_rgb	rgb_add(ambi, calc_pixel_l_diffused(shadow, vec3_dot(sur_vec, s2l_vec), cur, data))
 {
 
 }
 
+t_rgb	calc_pixel_l_diffused(shadow, vec3_dot(sur_vec, s2l_vec))
+{
+
+}
+
+
+t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
+{
+	t_rgb	ambi;
+	t_ray	shadow;
+	t_cord	p;
+	t_cord	sur_vec;
+	t_cord	s2l_vec;
+
+	initialise_t_rgb(&ambi);
+	if (!ray || !cur || !obj || !data)
+		return (ambi);
+	ambi = rgb_amp_capped(data->ambi.rgb, data->ambi.ratio);
+	p = calc_point(ray);
+	sur_vec = calc_surface_normal(p, cur);
+	s2l_vec = vec3_sub(data->ligt.cord, p);
+	s2l_vec = vec3_normalise(s2l_vec);
+	initialise_t_ray(&shadow);
+	shadow.cord = vec3_add(p, vec3_mul(sur_vec, EPSILON));
+	shadow.ori = s2l_vec;
+	calc_pixel_frt(&shadow, obj);
+	ambi = rgb_add(ambi, calc_pixel_l_diffused(shadow, vec3_dot(sur_vec, s2l_vec), cur, data));
+	ambi = rgb_amp_capped(ambi, 1);
+	return (ambi);
+}
+
+// calc_pixel_a(x, y, calc_pixel_l(&ray, frt, *obj, *data), *data)
+
 int	calc_pixel(t_obj **obj, t_data **data)
 {
 	t_obj	*frt;
+	t_ray	ray;
 	int		x;
 	int		y;
 
@@ -955,8 +1098,10 @@ int	calc_pixel(t_obj **obj, t_data **data)
 		x = 0;
 		while (x < WIDTH)
 		{
-			frt = calc_pixel_frt(x, y, *obj, *data);
-			if (calc_pixel_shape(x, y, frt, *data) != 0)
+			initialise_t_ray(&ray);
+			calc_ray_screen2obj(&ray, x, y, *data);
+			frt = calc_pixel_frt(&ray, *obj);
+			if (calc_pixel_a(x, y, calc_pixel_l(&ray, frt, *obj, *data), *data))
 				return (1);
 			x++;
 		}
