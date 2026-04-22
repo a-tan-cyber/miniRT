@@ -1046,59 +1046,86 @@ t_cord	calc_surface_normal(t_cord p, t_obj *cur)
 	return (res);
 }
 
-t_rgb	calc_pixel_l_diffused(t_ray shadow, t_cord p, double factor, t_obj *cur)
+double	vec3_len_sq(t_cord p, t_cord cord)
+{
+	t_cord	vector;
+	double	t;
+
+	initialise_t_cord(&vector);
+	vector = vec3_sub(p, cord);
+	t = vec3_dot(vector, vector);
+	return (t);
+}
+
+double	calc_pixel_l_sdwvslit(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
+{
+	t_ray	shadow;
+	t_cord	p;
+	t_cord	sur_vec;
+	t_cord	s2l_vec;
+	double	factor;
+
+	p = calc_point(ray);
+	sur_vec = calc_surface_normal(p, cur);
+	s2l_vec = vec3_sub(data->ligt.cord, p);
+	s2l_vec = vec3_normalise(s2l_vec);
+	factor = vec3_dot(sur_vec, s2l_vec);
+	if (factor < 0)
+		return (factor);
+	initialise_t_ray(&shadow);
+	shadow.cord = vec3_add(p, vec3_mul(sur_vec, EPSILON));
+	shadow.ori = s2l_vec;
+	calc_pixel_frt(&shadow, obj);
+	if (shadow.t <= EPSILON
+			|| shadow.t * shadow.t > vec3_len_sq(p, data->ligt.cord))
+		return (factor);
+	return (0.0);
+}
+
+t_rgb	rgb_add(t_rgb l1, t_rgb l2)
+{
+	l1.r = l1.r + l2.r;
+	l1.g = l1.g + l2.g;
+	l1.b = l1.b + l2.b;
+	return (l1);
+}
+
+t_rgb	rgb_mul(t_rgb l1, t_rgb l2, int bound)
+{
+	l1.r = l1.r * l2.r / bound;
+	l1.g = l1.g * l2.g / bound;
+	l1.b = l1.b * l2.b / bound;
+	return (l1);
+}
+
+t_rgb	calc_pixel_l_diffused(double factor, t_obj *cur, t_data *data)
 {
 	t_rgb	light;
 	t_cord	vector;
 	double	t;
 
 	initialise_t_rgb(&light);
-	vector = vec3_sub(p, data->ligt.cord);
-	t = vec3_dot(vector, vector);
-	if (shadow.t <= EPSILON || (shadow.t + EPSILON) * (shadow.t + EPSILON) >= t * t)
-	{
-		//add diffuse light
-		light = rgb_mix(cur->rgb, light);
-		factor = ft_max_dbl(0, factor);
-		light = rgb_amp_capped(light, factor);
-		light = rgb3_add(ambi, light);
-		rgb_amp_capped(light, -1);
-		return (light);
-	}
+	light = rgb_amp_capped(data->ligt.rgb, data->ligt.bright);
+	light = rgb_amp_capped(light, factor);
+	light = rgb_mul(cur->rgb, light, 255);
+	return (light);
 }
-
-t_rgb	rgb_add(ambi, calc_pixel_l_diffused(shadow, vec3_dot(sur_vec, s2l_vec), cur, data))
-{
-
-}
-
-
 
 t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
 {
 	t_rgb	ambi;
-	t_ray	shadow;
-	t_cord	p;
-	t_cord	sur_vec;
-	t_cord	s2l_vec;
+	double	factor;
 
 	initialise_t_rgb(&ambi);
 	if (!ray || !cur || !obj || !data)
 		return (ambi);
 	ambi = rgb_amp_capped(data->ambi.rgb, data->ambi.ratio);
-	p = calc_point(ray);
-	sur_vec = calc_surface_normal(p, cur);
-	s2l_vec = vec3_sub(data->ligt.cord, p);
-	s2l_vec = vec3_normalise(s2l_vec);
-	initialise_t_ray(&shadow);
-	shadow.cord = vec3_add(p, vec3_mul(sur_vec, EPSILON));
-	shadow.ori = s2l_vec;
-	calc_pixel_frt(&shadow, obj);
-	
-	ambi = rgb_add(ambi,
-		calc_pixel_l_diffused(shadow, p, vec3_dot(sur_vec, s2l_vec), cur));
-	ambi = rgb_add(ambi, rgb_amp_capped(data->ligt.rgb, data->ligt.bright));
-	ambi = rgb_amp_capped(ambi, 1);
+	factor = calc_pixel_l_sdwvslit(ray, cur, obj, data);
+	if (factor > 0)
+	{
+		ambi = rgb_add(ambi, calc_pixel_l_diffused(factor, cur, data));
+		ambi = rgb_amp_capped(ambi, 1);
+	}
 	return (ambi);
 }
 
