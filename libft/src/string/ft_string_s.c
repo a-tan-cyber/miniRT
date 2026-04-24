@@ -62,7 +62,7 @@ char	*ft_strjoin(int size, char **strs, char *sep)
 	return (res);
 }
 
-size_t	find_split_count(char *str, char *charset)
+size_t	find_split_count(const char *str, const char *charset)
 {
 	int	i;
 	int	c;
@@ -88,7 +88,7 @@ size_t	find_split_count(char *str, char *charset)
 	return ((size_t)c);
 }
 
-void	ft_sp_run(char *str, char *charset, char ***res)
+static void	ft_sp_run(const char *str, const char *charset, char ***res)
 {
 	int	i;
 	int	c;

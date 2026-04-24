@@ -14,6 +14,7 @@
 # define FT_STRING_H
 
 # include <stddef.h>
+# include "../bool/ft_bool.h"
 
 // ft_string.c
 size_t	ft_strlen(const char *str);
@@ -95,7 +96,7 @@ char	*ft_strjoin(int size, char **strs, char *sep);
 // char	*ft_strjoin2(char const *s1, char const *s2);
 // void	*ft_memjoin2(void const *s1, size_t len1, void const *s2, size_t len2);
 // size_t  find_split_count(char *str, char *charset);
-size_t	find_split_count(char *str, char *charset);
+size_t	find_split_count(const char *str, const char *charset);
 char	**ft_split(const char *str, const char *charset);
 
 // ft_string_v.c

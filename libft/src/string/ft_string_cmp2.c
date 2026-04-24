@@ -30,6 +30,13 @@ t_bool	check_str_end(const char *s1, const char *end)
 	return (FALSE);
 }
 
+static const char	*skip_zeroes(const char *str)
+{
+	while (*str == '0')
+		str++;
+	return (str);
+}
+
 // return -1 if s1 is smaller than s2, 0 if same, 1 if s1 is bigger than s2
 // return -2 if NULL
 int	ft_str_numcmp(const char *s1, const char *s2)

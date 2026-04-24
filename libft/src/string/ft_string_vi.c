@@ -40,7 +40,7 @@ int	ft_atoi(char *str)
 	return (sign * result);
 } \(2,147,483,647\) 
  */
-static char	*skip_zeroes(char *str)
+static const char	*skip_zeroes(const char *str)
 {
 	while (*str == '0')
 		str++;
