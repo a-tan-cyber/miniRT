@@ -47,7 +47,7 @@ static char	*skip_zeroes(char *str)
 	return (str);
 }
 
-int	ft_str_is_int(char *str)
+int	ft_str_is_int(const char *str)
 {
 	size_t	len;
 	int		neg;
@@ -77,7 +77,7 @@ int	ft_str_is_int(char *str)
 }
 
 // 1 is true, 0 is false
-int	ft_str_is_num(char *str)
+int	ft_str_is_num(const char *str)
 {
 	if (*str == '\0')
 		return (0);
@@ -91,7 +91,7 @@ int	ft_str_is_num(char *str)
 }
 
 // 1 is true, 0 is false
-int	ft_str_is_float(char *str)
+int	ft_str_is_float(const char *str)
 {
 	if (*str == '\0')
 		return (0);

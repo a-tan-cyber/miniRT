@@ -114,7 +114,7 @@ void	ft_sp_run(char *str, char *charset, char ***res)
 	(*res)[c] = NULL;
 }
 
-char	**ft_split(char *str, char *charset)
+char	**ft_split(const char *str, const char *charset)
 {
 	char	**res;
 	size_t	res_count;

@@ -12,9 +12,10 @@
 
 #include "minirt.h"
 
-int	ft_str_is_float(const char *s);
-float	ft_atof(const char *s);
-double	ft_atod(const char *s);
+
+double	vec3_dot(t_cord c1, t_cord c2);
+void	initialise_t_cord(t_cord *cord);
+void	initialise_t_rgb(t_rgb *rgb);
 
 // if s1 is smaller than min or bigger than max, then return 0
 int	validate_str_int_range(const char *s1, const char *min, const char *max)
@@ -62,7 +63,7 @@ int	add_rt_data_d_a(const char **split_arr, t_data **data)
 	arr = ft_split(split_arr[2], ",");
 	if (!arr)
 		return (ft_puterr("malloc failed (data.ambi.rgb)"), 2);
-	if (ft_arrlen(arr) != 3)
+	if (ft_arrlen((const char **)arr) != 3)
 		return (ft_puterr("data.ambi wrong no. of rgb val"), free_arr(arr), 3);
 	if (validate_str_int_range(arr[0], "0", "255") == FALSE)
 		return (ft_puterr("data.ambi r value invalid"), free_arr(arr), 4);
@@ -85,7 +86,7 @@ char	**split_3_float(const char *string, const char *charset)
 	arr = ft_split(string, charset);
 	if (!arr)
 		return (ft_puterr("malloc failed"), NULL);
-	if (ft_arrlen(arr) != 3)
+	if (ft_arrlen((const char **)arr) != 3)
 		return (ft_puterr("wrong no. of vector"), free_arr(arr), NULL);
 	if (!ft_str_is_float(arr[0]) || !ft_str_is_float(arr[1])
 		|| !ft_str_is_float(arr[2]))
@@ -166,7 +167,7 @@ char	**split_3_int(const char *string, const char *charset)
 	arr = ft_split(string, charset);
 	if (!arr)
 		return (ft_puterr("malloc failed"), NULL);
-	if (ft_arrlen(arr) != 3)
+	if (ft_arrlen((const char **)arr) != 3)
 		return (ft_puterr("wrong no. of int (rgb)"), free_arr(arr), NULL);
 	if (!ft_str_is_int(arr[0]) || !ft_str_is_int(arr[1])
 		|| !ft_str_is_int(arr[2]))
@@ -285,6 +286,7 @@ int	add_rt_data_s_sp(const char **split_arr, t_obj *new)
 
 	if (ft_arrlen(split_arr) != 4)
 		return (-2);
+	new->type = SP;
 	arr = split_3_float(split_arr[1], ",");
 	if (!arr)
 		return (ft_puterr("obj.cord error"), 2);
@@ -317,6 +319,7 @@ int	add_rt_data_s_pl(const char **split_arr, t_obj *new)
 
 	if (ft_arrlen(split_arr) != 4)
 		return (-2);
+	new->type = PL;
 	arr = split_3_float(split_arr[1], ",");
 	if (!arr)
 		return (ft_puterr("obj.cord error"), 2);
@@ -368,6 +371,7 @@ int	add_rt_data_s_cy(const char **split_arr, t_obj *new)
 
 	if (ft_arrlen(split_arr) != 6)
 		return (-2);
+	new->type = CY;
 	arr = split_3_float(split_arr[1], ",");
 	if (!arr)
 		return (ft_puterr("cylinder obj.cord error"), 2);
@@ -389,6 +393,58 @@ int	add_rt_data_s_cy(const char **split_arr, t_obj *new)
 	return (0);
 }
 
+t_obj *go_t_obj_last(t_obj *obj)
+{
+	t_obj	*cur;
+
+	cur = obj;
+	while (obj)
+	{
+		cur = obj;
+		obj = obj->next;
+	}
+	return (cur);
+}
+
+void	initialise_t_obj(t_obj **obj)
+{
+	t_obj	*cur_obj;
+
+	cur_obj = *obj;
+	cur_obj->type = -1;
+	initialise_t_cord(&cur_obj->cord);
+	cur_obj->dia = 0;
+	initialise_t_cord(&cur_obj->ori);
+	cur_obj->higt = 0;
+	initialise_t_rgb(&cur_obj->rgb);
+	cur_obj->id	= -1;
+	cur_obj->next = NULL;
+}
+
+t_obj	*cre_t_obj_new(void)
+{
+	t_obj	*new;
+
+	new = malloc(sizeof(t_obj));
+	if (!new)
+		return (NULL);
+	initialise_t_obj(&new);
+	return (new);
+}
+
+t_obj	*cre_t_obj_next(t_obj *obj)
+{
+	t_obj	*new;
+	
+	new = cre_t_obj_new();
+	if (!new)
+		return (NULL);
+	if (!obj)
+		return (new);
+	obj->next = new;
+	return (new);
+}
+
 int	add_rt_data_s(const char **split_arr, t_obj **obj)
 {
 	int		err;
@@ -405,7 +461,7 @@ int	add_rt_data_s(const char **split_arr, t_obj **obj)
 	else if (ft_strcmp(split_arr[0], "cy") == 0)
 		err = add_rt_data_s_cy(split_arr, new);
 	else
-		return (ft_puterr("invalid shape identifier"), ft_sfree(&new), -11);
+		return (ft_puterr("invalid shape identifier"), ft_sfree((void **)&new), -11);
 	return (err);
 }
 
@@ -420,13 +476,13 @@ int	add_rt_data(const char *trimmed, t_obj **obj, t_data **data)
 	curr = split_arr[0];
 	if (!ft_strcmp(curr, "A") || !ft_strcmp(curr, "C") || !ft_strcmp(curr, "L"))
 	{
-		if (add_rt_data_d(split_arr, data) != 0)
+		if (add_rt_data_d((const char **)split_arr, data) != 0)
 			return (free_arr(split_arr), 1);
 	}
 	else if (!ft_strcmp(curr, "sp") || !ft_strcmp(curr, "pl")
 		|| !ft_strcmp(curr, "cy"))
 	{
-		if (add_rt_data_s(split_arr, obj) != 0)
+		if (add_rt_data_s((const char **)split_arr, obj) != 0)
 			return (free_arr(split_arr), 2);
 	}
 	else
@@ -448,13 +504,13 @@ int	initialise_rt(const char *str, t_obj **obj, t_data **data)
 	while (line != NULL)
 	{
 		trimmed = ft_strtrim(line, " \n");
-		ft_sfree(&line);
+		ft_sfree((void **)&line);
 		if (ft_strcmp(trimmed, "") != 0)
 		{
 			if (add_rt_data(trimmed, obj, data) != 0)
-				return (ft_sfree(&trimmed), close(fd), get_next_line(-69), 2);
+				return (ft_sfree((void **)&trimmed), close(fd), get_next_line(-69), 2);
 		}
-		ft_sfree(&trimmed);
+		ft_sfree((void **)&trimmed);
 		line = get_next_line(fd);
 	}
 	close(fd);
@@ -476,20 +532,6 @@ void	initialise_t_rgb(t_rgb *rgb)
 	rgb->b = -1;
 }
 
-void	initialise_t_obj(t_obj **obj)
-{
-	t_obj	*cur_obj;
-
-	cur_obj = *obj;
-	cur_obj->type = -1;
-	initialise_t_cord(&cur_obj->cord);
-	cur_obj->dia = 0;
-	initialise_t_cord(&cur_obj->ori);
-	cur_obj->higt = 0;
-	initialise_t_rgb(&cur_obj->rgb);
-	cur_obj->id	= -1;
-	cur_obj->next = NULL;
-}
 
 void	initialise_t_data(t_data *cur_data)
 {
@@ -515,7 +557,7 @@ void	initialise_t_data(t_data *cur_data)
 
 int	initialise_structs(t_obj **obj, t_data **data)
 {
-	void(obj);
+	(void)obj;
 	*data = malloc(sizeof(t_data));
 	if (!(*data))
 		return (ft_puterr("initialise_structs (*data) malloc failed"), 1);
@@ -926,7 +968,7 @@ t_obj	*calc_pixel_frt(t_ray *ray, t_obj *obj)
 	frt = NULL;
 	while (obj != NULL)
 	{
-		frt = calc_pixel_frt_s(&ray, frt, obj);
+		frt = calc_pixel_frt_s(ray, frt, obj);
 		obj = obj->next;
 	}
 	return (frt);
@@ -1101,8 +1143,6 @@ t_rgb	rgb_mul(t_rgb l1, t_rgb l2, int bound)
 t_rgb	calc_pixel_l_diffused(double factor, t_obj *cur, t_data *data)
 {
 	t_rgb	light;
-	t_cord	vector;
-	double	t;
 
 	initialise_t_rgb(&light);
 	light = rgb_amp_capped(data->ligt.rgb, data->ligt.bright);
@@ -1120,6 +1160,7 @@ t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
 	if (!ray || !cur || !obj || !data)
 		return (ambi);
 	ambi = rgb_amp_capped(data->ambi.rgb, data->ambi.ratio);
+	ambi = rgb_mul(ambi, cur->rgb, 255);
 	factor = calc_pixel_l_sdwvslit(ray, cur, obj, data);
 	if (factor > 0)
 	{
@@ -1129,7 +1170,52 @@ t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
 	return (ambi);
 }
 
-// calc_pixel_a(x, y, calc_pixel_l(&ray, frt, *obj, *data), *data)
+#define BITS_PER_BYTE 8
+#define RGB_BUFFER 8
+
+// endian == 0 is little, endian == 1 is big
+int	conv_rgb2str(char *dest, t_rgb rgb, t_data *data)
+{
+	int		bpp;
+	int		endian;
+
+	bpp = data->bits_p_pixel;
+	endian = data->endian;
+	if (bpp == 32)
+	{
+		if (endian == 0)
+		{
+			ft_memcpy(dest, &rgb.b, 1);
+			ft_memcpy(dest + 1, &rgb.g, 1);
+			ft_memcpy(dest + 2, &rgb.r, 1);
+		}
+		else if (endian == 1)
+		{
+			ft_memcpy(dest, (char *)&rgb.r + sizeof(int) - 1, 1);
+			ft_memcpy(dest + 1, (char *)&rgb.g + sizeof(int) - 1, 1);
+			ft_memcpy(dest + 2, (char *)&rgb.b + sizeof(int) - 1, 1);
+		}
+	}
+	else
+		return (ft_puterr("conv_rgb2str err; bpp value unaccounted for"), 1);
+	return (0);
+}
+
+int	calc_pixel_a(int y, int x, t_rgb rgb, t_data *data)
+{
+	int		loc;
+	char	rgb_str[RGB_BUFFER];
+	int		n_bytes;
+
+	n_bytes = data->bits_p_pixel / BITS_PER_BYTE;
+	loc = y * data->size_line;
+	loc = loc + (n_bytes * x);
+	ft_memset(rgb_str, 0, RGB_BUFFER);
+	if (conv_rgb2str(rgb_str, rgb, data))
+		return (ft_puterr("calc_pixel_a rgb_str is NULL"), 1);
+	ft_memcpy(data->addr + loc, rgb_str, n_bytes);
+	return (0);
+}
 
 int	calc_pixel(t_obj **obj, t_data **data)
 {
@@ -1148,7 +1234,7 @@ int	calc_pixel(t_obj **obj, t_data **data)
 			initialise_t_ray(&ray);
 			calc_ray_screen2obj(&ray, x, y, *data);
 			frt = calc_pixel_frt(&ray, *obj);
-			if (calc_pixel_a(x, y, calc_pixel_l(&ray, frt, *obj, *data), *data))
+			if (calc_pixel_a(y, x, calc_pixel_l(&ray, frt, *obj, *data), *data))
 				return (1);
 			x++;
 		}
@@ -1157,12 +1243,67 @@ int	calc_pixel(t_obj **obj, t_data **data)
 	return (0);
 }
 
+int	redx(void *param)
+{
+	//clean up
+	exit(0);
+	return (0);
+}
 
-// if (add_event_hook(&data) != 0)
-// 	return (6);
-// if (run_window_loop(&obj, &data) != 0)
-// 	return (7);
-// return (free_rt(&obj, &data), 0);
+int	add_event_hook(t_data *data)
+{
+	mlx_hook(data->win, 17, 0, redx, NULL);
+	return (0);
+}
+
+int	run_window_loop(t_data *data)
+{
+	mlx_put_image_to_window(data->mlx, data->win, data->img, 0, 0);
+	mlx_loop(data->mlx);
+	return (0);
+}
+
+void	free_t_obj_all(t_obj *head)
+{
+	t_obj	*cur;
+
+	while (head)
+	{
+		cur = head;
+		head = head->next;
+		ft_sfree((void **)&cur);
+	}
+}
+
+void	free_t_data(t_data *data)
+{
+	if (!data)
+		return ;
+	if (data->img)
+		mlx_destroy_image(data->mlx, data->img);
+	if (data->win)
+		mlx_destroy_window(data->mlx, data->win);
+	if (data->mlx)
+	{
+		mlx_destroy_display(data->mlx);
+		ft_sfree((void **)&data->mlx);
+	}
+	ft_sfree((void **)&data);
+}
+
+void	free_rt(t_obj **obj, t_data **data)
+{
+	if (obj && *obj)
+	{
+		free_t_obj_all(*obj);
+		*obj = NULL;
+	}
+	if (data && *data)
+	{
+		free_t_data(*data);
+		*data = NULL;
+	}
+}
 
 int	main(int argc, char **argv)
 {
@@ -1183,9 +1324,9 @@ int	main(int argc, char **argv)
 		return (free_rt(&obj, &data), 5);
 	if (calc_pixel(&obj, &data) != 0)
 		return (free_rt(&obj, &data), 6);
-	if (add_event_hook(&data) != 0)
+	if (add_event_hook(data) != 0)
 		return (free_rt(&obj, &data), 7);
-	if (run_window_loop(&obj, &data) != 0)
+	if (run_window_loop(data) != 0)
 		return (free_rt(&obj, &data), 8);
 	return (free_rt(&obj, &data), 0);
 }

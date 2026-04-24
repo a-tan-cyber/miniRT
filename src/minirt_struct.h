@@ -22,6 +22,15 @@ enum e_type
 
 typedef	enum	e_type	t_type;
 
+struct s_cord
+{
+	double	x;
+	double	y;
+	double	z;
+};
+
+typedef struct	s_cord	t_cord;
+
 struct s_calc
 {
 	double	a;
@@ -34,15 +43,6 @@ struct s_calc
 };
 
 typedef struct	s_calc	t_calc;
-
-struct s_cord
-{
-	double	x;
-	double	y;
-	double	z;
-};
-
-typedef struct	s_cord	t_cord;
 
 struct s_rgb
 {

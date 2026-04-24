@@ -96,7 +96,7 @@ char	*ft_strjoin(int size, char **strs, char *sep);
 // void	*ft_memjoin2(void const *s1, size_t len1, void const *s2, size_t len2);
 // size_t  find_split_count(char *str, char *charset);
 size_t	find_split_count(char *str, char *charset);
-char	**ft_split(char *str, char *charset);
+char	**ft_split(const char *str, const char *charset);
 
 // ft_string_v.c
 int		ft_str_is_alpha(char *str);
@@ -105,9 +105,10 @@ int		ft_str_is_upper(char *str);
 int		ft_str_is_printable(char *str);
 
 // ft_string_vi.c
-int		ft_str_is_int(char *str);
-int		ft_str_is_num(char *str);
-int		ft_str_is_float(char *str);
+int		ft_str_is_int(const char *str);
+int		ft_str_is_num(const char *str);
+int		ft_str_is_float(const char *str);
+
 
 // ft_string_t.c
 char	*ft_str_toupper(char *str);

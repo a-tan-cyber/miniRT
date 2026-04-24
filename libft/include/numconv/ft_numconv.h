@@ -15,7 +15,7 @@
 
 // ft_numconv_str.c
 // ft_atoi diff fulfillment
-int		ft_atoi(char *str);
+int		ft_atoi(const char *str);
 // caller free()
 char	*ft_itoa(int n);
 char	*ft_itoa_fast(int n, char *dest);
