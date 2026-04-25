@@ -11,7 +11,7 @@ src/numconv/ft_numconv_base.c	src/numconv/ft_numconv_hex.c	src/numconv/ft_numcon
 src/queue/ft_queue_1_base.c		src/queue/ft_queue_chk.c		src/queue/ft_queue_n_base.c	src/s_list/ft_s_list.c\
 src/s_list/ft_s_list2.c			src/s_list/ft_s_list_each.c		src/stack/ft_stack_base.c	src/stack/ft_stack_chk.c\
 src/string/ft_string_cat.c		src/string/ft_string_con.c		src/string/ft_string_mem.c	src/string/ft_string_mem2.c\
-src/string/ft_string_substr.c	src/string/ft_string_v.c		src/string/ft_string_vi.c	src/string/ft_string.c			src/string/ft_string_cmp.c	src/string/ft_string_cmp2.c\
+src/string/ft_string_substr.c	src/string/ft_string_v.c		src/string/ft_string_vi.c	src/string/ft_string_vf.c	src/string/ft_string.c			src/string/ft_string_cmp.c	src/string/ft_string_cmp2.c\
 src/string/ft_string_cpy.c		src/string/ft_string_p.c		src/string/ft_string_t.c	src/string/ft_string_btcmp.c	src/string/ft_put_fd.c		src/string/ft_write_all.c\
 src/string/ft_string_cnt.c		src/string/ft_string_m.c		src/string/ft_string_s.c	src/string/ft_string_trim.c		src/utils/ft_utils_free.c\
 src/utils/ft_utils_hexdump.c	src/utils/ft_utils_lis.c		src/utils/ft_utils_lis_cir.c\

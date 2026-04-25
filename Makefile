@@ -9,24 +9,24 @@ SRCS_NAME =	\
 SRCS = $(SRCS_NAME)
 OBJS = $(SRCS:.c=.o)
 
+all: $(LIBFT) $(MLX) $(NAME)
+
 LIBFT_DIR = libft
 LIBFT = $(LIBFT_DIR)/libft.a
 $(LIBFT):
 	$(MAKE) -C $(LIBFT_DIR)
 
 MLX_DIR = minilibx-linux
-MLX = $(MLX_DIR)/mlx.a
+MLX = $(MLX_DIR)/libmlx_Linux.a
 $(MLX):
 	$(MAKE) -C $(MLX_DIR)
 
-$(NAME): $(OBJS) $(LIBFT)
-	cc $(OBJS) -I$(LIBFT) -I$(MLX) -lXext -lX11 -o $(NAME)
+$(NAME): $(OBJS) $(LIBFT) $(MLX)
+	cc $(OBJS) $(LIBFT) $(MLX) -lXext -lX11 -lm -o $(NAME)
 
 %.o: %.c
 # 	cc -Wall -Wextra -Werror -c $< -o $@
-	cc -c $< -o $@
-
-all: $(LIBFT) $(MLX) $(NAME)
+	cc -I$(LIBFT_DIR) -I$(MLX_DIR) -c $< -o $@
 
 clean:
 	$(MAKE) -C $(LIBFT_DIR) clean
@@ -35,7 +35,7 @@ clean:
 
 fclean: clean
 	$(MAKE) -C $(LIBFT_DIR) fclean
-	$(MAKE) -C $(MLX_DIR) fclean
+	$(MAKE) -C $(MLX_DIR) clean
 	rm -f $(NAME)
 
 re: fclean all

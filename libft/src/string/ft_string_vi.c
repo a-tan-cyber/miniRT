@@ -90,16 +90,20 @@ int	ft_str_is_num(const char *str)
 	return (1);
 }
 
-// 1 is true, 0 is false
-int	ft_str_is_float(const char *str)
+int	ft_is_digit(char c)
 {
-	if (*str == '\0')
-		return (0);
-	while (*str)
-	{
-		if ((*str < '0') || ('9' < *str))
-			return (0);
-		str++;
-	}
-	return (1);
+	return (c >= '0' && c <= '9');
 }
+
+// int	ft_str_is_float(const char *str)
+// {
+// 	if (*str == '\0')
+// 		return (0);
+// 	while (*str)
+// 	{
+// 		if ((*str < '0') || ('9' < *str))
+// 			return (0);
+// 		str++;
+// 	}
+// 	return (1);
+// }

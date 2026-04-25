@@ -108,8 +108,11 @@ int		ft_str_is_printable(char *str);
 // ft_string_vi.c
 int		ft_str_is_int(const char *str);
 int		ft_str_is_num(const char *str);
-int		ft_str_is_float(const char *str);
+int		ft_is_digit(char c);
 
+// ft_string_vf.c
+int		ft_str_is_float(const char *str);
+int		ft_skip_space(const char *s, int i);
 
 // ft_string_t.c
 char	*ft_str_toupper(char *str);

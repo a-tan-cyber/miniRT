@@ -470,7 +470,7 @@ int	add_rt_data(const char *trimmed, t_obj **obj, t_data **data)
 	char	**split_arr;
 	char	*curr;
 
-	split_arr = ft_split(trimmed, " ");
+	split_arr = ft_split(trimmed, " \t");
 	if (!split_arr || !split_arr[0])
 		return (free_arr(split_arr), -1);
 	curr = split_arr[0];
@@ -565,8 +565,8 @@ int	initialise_structs(t_obj **obj, t_data **data)
 	return (0);
 }
 
-#define WIDTH	256
-#define HEIGHT	256
+#define WIDTH	1024
+#define HEIGHT	1024
 
 int	initialise_minilibx(t_data **data)
 {
@@ -588,6 +588,8 @@ int	initialise_minilibx(t_data **data)
 		return (ft_puterr("initialise_minilibx: failed to initialise curr->addr"), 4);
 	return (0);
 }
+
+# define M_PI 3.14159265358979323846
 
 double	ft_degree2radian(int degree)
 {
