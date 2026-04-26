@@ -1380,6 +1380,7 @@ void	ins_vec3_dbl(t_cord *step, double x, double y, double z)
 	step->z = z;
 }
 
+//overflow normalised vector
 void	move_cam_aim(int key, t_data *data)
 {
 	if		(key == I)
@@ -1390,6 +1391,7 @@ void	move_cam_aim(int key, t_data *data)
 		data->cam.ori.x += TILT;
 	else if (key == L)
 		data->cam.ori.x -= TILT;
+	data->cam.ori = vec3_normalise(data->cam.ori);
 	calc_pixel(&data->obj_head, &data);
 	mlx_put_image_to_window(data->mlx, data->win, data->img, 0, 0);
 }
