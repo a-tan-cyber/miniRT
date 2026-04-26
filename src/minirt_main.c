@@ -1318,16 +1318,99 @@ int	redx(void *param)
 	return (0);
 }
 
+#define	ESC 65307
+#define	E 101
+#define	S 115
+#define	D 100
+#define	F 102
+#define	T 116
+#define	G 103
+#define	I 105
+#define	J 106
+#define	K 107
+#define	L 108
+#define	STEP 5
+#define	TILT 0.1
+
+t_cord	calc_vector_up(t_cord f)
+{
+	t_cord	up;
+
+	initialise_t_cord(&up);
+	if (f.x == 0.0f && (f.y == 1.0f || f.y == -1.0f) && f.z == 0.0f)
+		up.z = -1.0f;
+	else
+		up.y = 1.0f;
+	return (up);
+}
+
+// T == forward; G == backward;
+// E == UP; D == Down; S == Left; F ==right;
+void	move_cam_strafe(int key, t_data *data)
+{
+	t_cord	up;
+	t_cord	right;
+
+	if (key == T)
+		data->cam.cord = vec3_add(data->cam.cord, vec3_mul(data->cam.ori, STEP));
+	else if (key == G)
+		data->cam.cord = vec3_sub(data->cam.cord, vec3_mul(data->cam.ori, STEP));
+	else
+	{
+		up = vec3_normalise(calc_vector_up(data->cam.ori));
+		right = vec3_cross(data->cam.ori, up);
+		right = vec3_normalise(right);
+		if		(key == E)
+			data->cam.cord = vec3_add(data->cam.cord, vec3_mul(up, STEP));
+		else if	(key == D)
+			data->cam.cord = vec3_sub(data->cam.cord, vec3_mul(up, STEP));
+		else if (key == S)
+			data->cam.cord = vec3_sub(data->cam.cord, vec3_mul(right, STEP));
+		else if (key == F)
+			data->cam.cord = vec3_add(data->cam.cord, vec3_mul(right, STEP));
+	}
+	calc_pixel(&data->obj_head, &data);
+	mlx_put_image_to_window(data->mlx, data->win, data->img, 0, 0);
+}
+
+void	ins_vec3_dbl(t_cord *step, double x, double y, double z)
+{
+	step->x = x;
+	step->y = y;
+	step->z = z;
+}
+
+void	move_cam_aim(int key, t_data *data)
+{
+	if		(key == I)
+		data->cam.ori.y += TILT;
+	else if	(key == K)
+		data->cam.ori.y -= TILT;
+	else if (key == J)
+		data->cam.ori.x += TILT;
+	else if (key == L)
+		data->cam.ori.x -= TILT;
+	calc_pixel(&data->obj_head, &data);
+	mlx_put_image_to_window(data->mlx, data->win, data->img, 0, 0);
+}
+
+// sudo showkey -a
 // linux: ESC == 65307;
+// linux: e == 101; s == 115; d == 100; f == 102;
 int	handle_keypress(int key, void *param)
 {
 	t_data	*data;
 
 	data = (t_data *)param;
-	if (key == 65307)
+	if (key == ESC)
+		return (free_rt(&data->obj_head, &data), exit(0), 0);
+	if (key == T || key == G || key == E || key == S || key == D || key == F)
 	{
-		free_rt(&data->obj_head, &data);
-		exit(0);
+		move_cam_strafe(key, data);
+	}
+	else if (key == I || key == J || key == K || key == L)
+	{
+		move_cam_aim(key, data);
 	}
 	return (0);
 }
