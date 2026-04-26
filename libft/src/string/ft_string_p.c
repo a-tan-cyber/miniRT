@@ -25,6 +25,7 @@ void	ft_putstr(const char *str)
 void	ft_puterr(char *str)
 {
 	ft_write_all(STDERR_FILENO, str, ft_strlen(str));
+	ft_write_all(STDERR_FILENO, "\n", 1);
 }
 
 void	ft_putnstr(char *str, int n)

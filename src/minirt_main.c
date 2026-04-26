@@ -354,6 +354,17 @@ int	val_ins_rgb(const char *string, t_obj *new)
 	return (0);
 }
 
+int	chk_normalised(t_cord ori)
+{
+	double	normal;
+
+	normal = ori.x * ori.x + ori.y * ori.y + ori.z * ori.z;
+	if (fabs(normal - 1.0) < EPSILON)
+		return (0);
+	ft_puterr("ori not normalised");
+	return (1);
+}
+
 /* 
 ◦Cylinder:
 cy 50.0,0.0,20.6	0.0,0.0,1.0		14.2	21.42	10,0,255
@@ -381,8 +392,8 @@ int	add_rt_data_s_cy(const char **split_arr, t_obj *new)
 	arr = split_3_double_range(split_arr[2], ",", -1, 1);
 	if (!arr)
 		return (ft_puterr("cylinder obj.ori error"), 2);
-	if (ins_vec3(&new->ori, arr[0], arr[1], arr[2]))
-		return (free_arr(arr), -3);
+	if (ins_vec3(&new->ori, arr[0], arr[1], arr[2]) || chk_normalised(new->ori))
+		return (ft_puterr("cylinder obj.ori error"), free_arr(arr), -3);
 	free_arr(arr);
 	if (ft_atof(split_arr[3]) <= 0 || ft_atof(split_arr[4]) <= 0)
 		return (ft_puterr("cylinder diameter <= 0 or height <= 0"), 3);
@@ -453,6 +464,8 @@ int	add_rt_data_s(const char **split_arr, t_obj **obj)
 	new = cre_t_obj_next(go_t_obj_last(*obj));
 	if (!new)
 		return (ft_puterr("add_rt_data_s: failed to create new"), -1);
+	if (!*obj)
+		*obj = new;
 	err = 0;
 	if		(ft_strcmp(split_arr[0], "sp") == 0)
 		err = add_rt_data_s_sp(split_arr, new);
@@ -681,6 +694,7 @@ void	calc_ray_screen2obj(t_ray *ray, int x, int y, t_data *data)
 	xf = ft_normalise_x(x, WIDTH, aspect_ratio, fov);
 	yf = ft_normalise_y(y, HEIGHT, fov);
 	calc_orientation(xf, yf, data->cam.ori, ray);
+	ray->cord = data->cam.cord;
 }
 
 double	vec3_dot(t_cord c1, t_cord c2)
@@ -1033,10 +1047,13 @@ t_rgb	rgb_amp_capped(t_rgb rgb, double ratio)
 {
 	rgb.r = (double)rgb.r * ratio;
 	rgb.r = ft_min(rgb.r, 255);
+	rgb.r = ft_max(rgb.r, 0);
 	rgb.g = (double)rgb.g * ratio;
 	rgb.g = ft_min(rgb.g, 255);
+	rgb.g = ft_max(rgb.g, 0);
 	rgb.b = (double)rgb.b * ratio;
 	rgb.b = ft_min(rgb.b, 255);
+	rgb.b = ft_max(rgb.b, 0);
 	return (rgb);
 }
 
@@ -1252,9 +1269,22 @@ int	redx(void *param)
 	return (0);
 }
 
+// linux: ESC == 65307;
+int	handle_keypress(int key, void *param)
+{
+	if (key == 65307)
+	{
+		//destroy windows
+		//clean up
+		exit(0);
+	}
+	return (0);
+}
+
 int	add_event_hook(t_data *data)
 {
 	mlx_hook(data->win, 17, 0, redx, NULL);
+	mlx_hook(data->win, 2, 1L << 0, handle_keypress, NULL);
 	return (0);
 }
 
