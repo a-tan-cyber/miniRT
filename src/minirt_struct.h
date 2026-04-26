@@ -110,6 +110,7 @@ struct s_data
 	int		bits_p_pixel;
 	int		size_line;
 	int		endian;
+	t_obj	*obj_head;
 };
 
 typedef struct	s_data	t_data;

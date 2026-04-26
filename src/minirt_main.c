@@ -456,7 +456,7 @@ t_obj	*cre_t_obj_next(t_obj *obj)
 	return (new);
 }
 
-int	add_rt_data_s(const char **split_arr, t_obj **obj)
+int	add_rt_data_s(const char **split_arr, t_obj **obj, t_data **data)
 {
 	int		err;
 	t_obj	*new;
@@ -465,7 +465,10 @@ int	add_rt_data_s(const char **split_arr, t_obj **obj)
 	if (!new)
 		return (ft_puterr("add_rt_data_s: failed to create new"), -1);
 	if (!*obj)
+	{
 		*obj = new;
+		(*data)->obj_head = new;
+	}
 	err = 0;
 	if		(ft_strcmp(split_arr[0], "sp") == 0)
 		err = add_rt_data_s_sp(split_arr, new);
@@ -495,7 +498,7 @@ int	add_rt_data(const char *trimmed, t_obj **obj, t_data **data)
 	else if (!ft_strcmp(curr, "sp") || !ft_strcmp(curr, "pl")
 		|| !ft_strcmp(curr, "cy"))
 	{
-		if (add_rt_data_s((const char **)split_arr, obj) != 0)
+		if (add_rt_data_s((const char **)split_arr, obj, data) != 0)
 			return (free_arr(split_arr), 2);
 	}
 	else
@@ -566,6 +569,7 @@ void	initialise_t_data(t_data *cur_data)
 	cur_data->bits_p_pixel = -1;
 	cur_data->size_line = -1;
 	cur_data->endian = -1;
+	cur_data->obj_head = NULL;
 }
 
 int	initialise_structs(t_obj **obj, t_data **data)
@@ -1262,39 +1266,6 @@ int	calc_pixel(t_obj **obj, t_data **data)
 	return (0);
 }
 
-int	redx(void *param)
-{
-	//clean up
-	exit(0);
-	return (0);
-}
-
-// linux: ESC == 65307;
-int	handle_keypress(int key, void *param)
-{
-	if (key == 65307)
-	{
-		//destroy windows
-		//clean up
-		exit(0);
-	}
-	return (0);
-}
-
-int	add_event_hook(t_data *data)
-{
-	mlx_hook(data->win, 17, 0, redx, NULL);
-	mlx_hook(data->win, 2, 1L << 0, handle_keypress, NULL);
-	return (0);
-}
-
-int	run_window_loop(t_data *data)
-{
-	mlx_put_image_to_window(data->mlx, data->win, data->img, 0, 0);
-	mlx_loop(data->mlx);
-	return (0);
-}
-
 void	free_t_obj_all(t_obj *head)
 {
 	t_obj	*cur;
@@ -1335,6 +1306,44 @@ void	free_rt(t_obj **obj, t_data **data)
 		free_t_data(*data);
 		*data = NULL;
 	}
+}
+
+int	redx(void *param)
+{
+	t_data	*data;
+
+	data = (t_data *)param;
+	free_rt(&data->obj_head, &data);
+	exit(0);
+	return (0);
+}
+
+// linux: ESC == 65307;
+int	handle_keypress(int key, void *param)
+{
+	t_data	*data;
+
+	data = (t_data *)param;
+	if (key == 65307)
+	{
+		free_rt(&data->obj_head, &data);
+		exit(0);
+	}
+	return (0);
+}
+
+int	add_event_hook(t_data *data)
+{
+	mlx_hook(data->win, 17, 0, redx, (void *)data);
+	mlx_hook(data->win, 2, 1L << 0, handle_keypress, (void *)data);
+	return (0);
+}
+
+int	run_window_loop(t_data *data)
+{
+	mlx_put_image_to_window(data->mlx, data->win, data->img, 0, 0);
+	mlx_loop(data->mlx);
+	return (0);
 }
 
 int	main(int argc, char **argv)
