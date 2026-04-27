@@ -428,7 +428,7 @@ void	initialise_t_obj(t_obj **obj)
 	initialise_t_cord(&cur_obj->ori);
 	cur_obj->higt = 0;
 	initialise_t_rgb(&cur_obj->rgb);
-	cur_obj->id	= -1;
+	cur_obj->lhit= -1;
 	cur_obj->next = NULL;
 }
 
@@ -910,6 +910,43 @@ int	calc_intersect_cy_plin(double t, t_cord top, t_ray *ray, t_obj *obj)
 	return (0);
 }
 
+// // cylinder: |((P - C) X N)|^2 = r^2
+// double	calc_intersect_cy(t_ray *ray, t_obj *obj)
+// {
+// 	double	res1;
+// 	double	final;
+// 	t_cord	top;
+// 	t_cord	bot;
+
+// 	final = DBL_MAX;
+// 	top = vec3_add(obj->cord, vec3_mul(obj->ori, obj->higt / 2.0));
+// 	bot = vec3_sub(obj->cord, vec3_mul(obj->ori, obj->higt / 2.0));
+// 	res1 = calc_intersect_cy_tube(ray, obj);
+// 	if (res1 > 0)
+// 	{
+// 		final = res1;
+// 		obj->lhit = TUBE;
+// 	}
+// 	res1 = calc_intersect_pl_hlp(ray->cord, ray->ori, top, obj->ori);
+// 	if (res1 > 0 && calc_intersect_cy_plin(res1, top, ray, obj) == 1)
+// 		final = ft_min_dbl(final, res1);
+// 	res1 = calc_intersect_pl_hlp(ray->cord, ray->ori, bot, obj->ori);
+// 	if (res1 > 0 && calc_intersect_cy_plin(res1, bot, ray, obj) == 1)
+// 		final = ft_min_dbl(final, res1);
+// 	if (final == DBL_MAX)
+// 		return (-1);
+// 	return (final);
+// }
+
+double	calc_intersect_cy_plin_lhit(double final, double res, t_obj *cur,
+		t_lhit lhit)
+{
+	if (final < res)
+		return (final);
+	cur->lhit = lhit;
+	return (res);
+}
+
 // cylinder: |((P - C) X N)|^2 = r^2
 double	calc_intersect_cy(t_ray *ray, t_obj *obj)
 {
@@ -923,13 +960,16 @@ double	calc_intersect_cy(t_ray *ray, t_obj *obj)
 	bot = vec3_sub(obj->cord, vec3_mul(obj->ori, obj->higt / 2.0));
 	res1 = calc_intersect_cy_tube(ray, obj);
 	if (res1 > 0)
+	{
 		final = res1;
+		obj->lhit = TUBE;
+	}
 	res1 = calc_intersect_pl_hlp(ray->cord, ray->ori, top, obj->ori);
 	if (res1 > 0 && calc_intersect_cy_plin(res1, top, ray, obj) == 1)
-		final = ft_min_dbl(final, res1);
+		final = calc_intersect_cy_plin_lhit(final, res1, obj, FLAT_TOP);
 	res1 = calc_intersect_pl_hlp(ray->cord, ray->ori, bot, obj->ori);
 	if (res1 > 0 && calc_intersect_cy_plin(res1, bot, ray, obj) == 1)
-		final = ft_min_dbl(final, res1);
+		final = calc_intersect_cy_plin_lhit(final, res1, obj, FLAT_BOT);
 	if (final == DBL_MAX)
 		return (-1);
 	return (final);
@@ -1082,6 +1122,35 @@ double	calc_surface_normal_cy_distance(t_cord p, t_obj *cur)
 	return (res);
 }
 
+// t_cord	calc_surface_normal(t_cord p, t_obj *cur)
+// {
+// 	t_cord	res;
+// 	double	m;
+// 	t_cord	new_center;
+
+// 	initialise_t_cord(&res);
+// 	if		(cur->type == SP)
+// 		res = vec3_sub(p, cur->cord);
+// 	else if (cur->type == PL)
+// 		res = cur->ori;
+// 	else if (cur->type == CY)
+// 	{
+// 		m = calc_surface_normal_cy_distance(p, cur);
+// 		if (-cur->higt / 2 < m && m < cur->higt / 2)
+// 		{
+// 			new_center = vec3_mul(cur->ori, m);
+// 			new_center = vec3_add(new_center, cur->cord);
+// 			res = vec3_sub(p, new_center);
+// 		}
+// 		else if (m < 0)
+// 			res = vec3_mul(cur->ori, -1);
+// 		else
+// 			res = cur->ori;
+// 	}
+// 	res = vec3_normalise(res);
+// 	return (res);
+// }
+
 t_cord	calc_surface_normal(t_cord p, t_obj *cur)
 {
 	t_cord	res;
@@ -1095,17 +1164,17 @@ t_cord	calc_surface_normal(t_cord p, t_obj *cur)
 		res = cur->ori;
 	else if (cur->type == CY)
 	{
-		m = calc_surface_normal_cy_distance(p, cur);
-		if (-cur->higt / 2 < m && m < cur->higt / 2)
+		if		(cur->lhit == FLAT_TOP)
+			res = cur->ori;
+		else if (cur->lhit == FLAT_BOT)
+			res = vec3_mul(cur->ori, -1);
+		else if (cur->lhit == TUBE)
 		{
+			m = calc_surface_normal_cy_distance(p, cur);
 			new_center = vec3_mul(cur->ori, m);
 			new_center = vec3_add(new_center, cur->cord);
 			res = vec3_sub(p, new_center);
 		}
-		else if (m < 0)
-			res = vec3_mul(cur->ori, -1);
-		else
-			res = cur->ori;
 	}
 	res = vec3_normalise(res);
 	return (res);
@@ -1380,7 +1449,6 @@ void	ins_vec3_dbl(t_cord *step, double x, double y, double z)
 	step->z = z;
 }
 
-//overflow normalised vector
 void	move_cam_aim(int key, t_data *data)
 {
 	if		(key == I)
@@ -1394,6 +1462,19 @@ void	move_cam_aim(int key, t_data *data)
 	data->cam.ori = vec3_normalise(data->cam.ori);
 	calc_pixel(&data->obj_head, &data);
 	mlx_put_image_to_window(data->mlx, data->win, data->img, 0, 0);
+}
+
+#include <stdio.h>
+void	ft_print_t_cord(t_cord cord)
+{
+	//change printf
+	// printf("%lf", cord.x);
+	// ft_putstr(", ");
+	// printf("%lf", cord.y);
+	// ft_putstr(", ");
+	// printf("%lf", cord.z);
+	printf("% lf, % lf, % lf; ", cord.x, cord.y, cord.z);
+	fflush(stdout);
 }
 
 // sudo showkey -a
@@ -1414,6 +1495,13 @@ int	handle_keypress(int key, void *param)
 	{
 		move_cam_aim(key, data);
 	}
+	else
+		return (0);
+	ft_putstr("Camera coord: ");
+	ft_print_t_cord(data->cam.cord);
+	ft_putstr("Camera angle: ");
+	ft_print_t_cord(data->cam.ori);
+	ft_putstr("\n");
 	return (0);
 }
 

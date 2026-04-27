@@ -22,6 +22,15 @@ enum e_type
 
 typedef	enum	e_type	t_type;
 
+enum e_lhit
+{
+	FLAT_TOP,
+	FLAT_BOT,
+	TUBE
+};
+
+typedef	enum	e_lhit	t_lhit;
+
 struct s_cord
 {
 	double	x;
@@ -63,7 +72,7 @@ struct s_obj
 	double			higt;
 	t_rgb			rgb;
 	double			plane_constant;
-	int				id;
+	t_lhit			lhit;
 	struct s_obj	*next;
 };
 

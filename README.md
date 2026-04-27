@@ -30,3 +30,6 @@ $$L = \sqrt{2^2 + 5^2 + 1^2} = \sqrt{4 + 25 + 1} = \sqrt{30} \approx 5.477225$$
 $\frac{1}{\sqrt{3}} \approx 0.57735026$
 
 sample vector: 0.57735026,0.57735026,0.57735026
+
+# notes
+compiling with the -flto flag on performance oriented programs
