@@ -6,7 +6,7 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 17:41:51 by yunguo            #+#    #+#             */
-/*   Updated: 2026/04/29 21:04:27 by amtan            ###   ########.fr       */
+/*   Updated: 2026/04/29 21:25:25 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,37 @@ double	calc_pixel_l_sdwvslit(t_ray *ray, t_obj *cur, t_obj *obj,
 t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data);
 int		calc_pixel_a(int y, int x, t_rgb rgb, t_data *data);
 int		calc_pixel(t_obj **obj, t_data **data);
+
+int		validate_str_int_range(const char *s1, const char *min,
+			const char *max);
+int		validate_str_float_range(const char *s, float min, float max);
+int		chk_normalised(t_cord ori);
+int		validate_required_data(t_data *data);
+int		add_rt_data_d_a(const char **split_arr, t_data **data);
+int		ins_vec3(t_cord *cord, const char *x, const char *y,
+			const char *z);
+int		add_rt_data_d_c(const char **split_arr, t_cam *cam);
+int		ins_rgb(t_rgb *rgb, const char *r, const char *g, const char *b);
+int		add_rt_data_d_l(const char **split_arr, t_ligt *ligt);
+int		add_rt_data_d(const char **split_arr, t_data **data);
+int		add_rt_data_s_sp(const char **split_arr, t_obj *new);
+int		add_rt_data_s_pl(const char **split_arr, t_obj *new);
+int		val_ins_rgb(const char *string, t_obj *new);
+int		add_rt_data_s_cy(const char **split_arr, t_obj *new);
+int		add_rt_data_s(const char **split_arr, t_obj **obj, t_data **data);
+int		add_rt_data(const char *trimmed, t_obj **obj, t_data **data);
+int		initialise_rt(const char *str, t_obj **obj, t_data **data);
+
+char	**split_3_float(const char *string, const char *charset);
+char	**split_3_double_range(const char *string, const char *charset,
+			double min, double max);
+char	**split_3_int(const char *string, const char *charset);
+char	**split_3_int_range(const char *string, const char *charset,
+			const char *min, const char *max);
+
+t_obj	*go_t_obj_last(t_obj *obj);
+t_obj	*cre_t_obj_next(t_obj *obj);
+t_obj	*cre_t_obj_next(t_obj *obj);
 
 int		handle_keypress(int key, void *param);
 

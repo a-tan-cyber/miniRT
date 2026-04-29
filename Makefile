@@ -29,6 +29,12 @@ SRCS_NAME = \
 	src/lighting_color.c \
 	src/lighting_normal.c \
 	src/lighting_main.c \
+	src/parser_validate.c \
+	src/parser_data.c \
+	src/parser_objects.c \
+	src/parser_main.c \
+	src/parser_split.c \
+	src/object_list.c \
 
 SRCS = $(SRCS_NAME)
 OBJS = $(SRCS:.c=.o)
