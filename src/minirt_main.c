@@ -6,13 +6,12 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 17:17:44 by yunguo            #+#    #+#             */
-/*   Updated: 2026/04/29 19:54:58 by amtan            ###   ########.fr       */
+/*   Updated: 2026/04/29 20:08:23 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
 
-double	vec3_dot(t_cord c1, t_cord c2);
 int		chk_normalised(t_cord ori);
 
 // if s1 is smaller than min or bigger than max, then return 0
@@ -533,9 +532,6 @@ int	initialise_rt(const char *str, t_obj **obj, t_data **data)
 	return (0);
 }
 
-#define WIDTH	1024
-#define HEIGHT	1024
-
 int	initialise_minilibx(t_data **data)
 {
 	t_data	*curr;
@@ -555,72 +551,6 @@ int	initialise_minilibx(t_data **data)
 	if (!curr->addr)
 		return (ft_puterr("initialise_minilibx: failed to initialise curr->addr"), 4);
 	return (0);
-}
-
-# define M_PI 3.14159265358979323846
-
-double	ft_degree2radian(int degree)
-{
-	double	res;
-
-	res = degree * M_PI / 180;
-	return (res);
-}
-
-double	ft_normalise_x(int x, double width, double aspect, double fov)
-{
-	double	res;
-
-	res = ((double)x + 0.5f) / width;
-	res = res * 2.0f - 1.0f;
-	res *= tan(fov / 2.0f);
-	res *= aspect;
-	return (res);
-}
-
-double	ft_normalise_y(int y, double height, double fov)
-{
-	double	res;
-
-	res = ((double)y + 0.5f) / height;
-	res = 1.0f - (2.0f * res);
-	res *= tan(fov / 2.0f);
-	return (res);
-}
-
-void	calc_orientation(double xf, double yf, t_cord ori, t_ray *ray)
-{
-	t_cord	f;
-	t_cord	r;
-	t_cord	up;
-
-	f = vec3_normalise(ori);
-	initialise_t_cord(&up);
-	if (f.x == 0.0f && (f.y == 1.0f || f.y == -1.0f) && f.z == 0.0f)
-		up.z = -1.0f;
-	else
-		up.y = 1.0f;
-	r = vec3_cross(f, up);
-	up = vec3_cross(r, f);
-	ray->ori.x = (xf * r.x) + (yf * up.x) + (1.0f * f.x);
-	ray->ori.y = (xf * r.y) + (yf * up.y) + (1.0f * f.y);
-	ray->ori.z = (xf * r.z) + (yf * up.z) + (1.0f * f.z);
-	ray->ori = vec3_normalise(ray->ori);
-}
-
-void	calc_ray_screen2obj(t_ray *ray, int x, int y, t_data *data)
-{
-	double	aspect_ratio;
-	double	fov;
-	double	xf;
-	double	yf;
-	
-	aspect_ratio = (float)WIDTH / (float)HEIGHT;
-	fov = ft_degree2radian(data->cam.fov);
-	xf = ft_normalise_x(x, WIDTH, aspect_ratio, fov);
-	yf = ft_normalise_y(y, HEIGHT, fov);
-	calc_orientation(xf, yf, data->cam.ori, ray);
-	ray->cord = data->cam.cord;
 }
 
 double	ft_discriminant(double a, double b, double c)
@@ -916,13 +846,6 @@ t_obj	*calc_pixel_frt(t_ray *ray, t_obj *obj)
 		obj = obj->next;
 	}
 	return (frt);
-}
-
-void	initialise_t_ray(t_ray *ray)
-{
-	ray->t = -1.0f;
-	initialise_t_cord(&ray->cord);
-	initialise_t_cord(&ray->ori);
 }
 
 // t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)

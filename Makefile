@@ -18,6 +18,8 @@ SRCS_NAME = \
 	src/init.c \
 	src/vector_basic.c \
 	src/vector_extra.c \
+	src/camera_ray.c \
+	src/ray_init.c \
 
 SRCS = $(SRCS_NAME)
 OBJS = $(SRCS:.c=.o)
