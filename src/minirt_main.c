@@ -6,7 +6,7 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 17:17:44 by yunguo            #+#    #+#             */
-/*   Updated: 2026/04/29 20:34:19 by amtan            ###   ########.fr       */
+/*   Updated: 2026/04/29 21:04:15 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -573,43 +573,9 @@ int	initialise_rt(const char *str, t_obj **obj, t_data **data)
 // }
 
 
-t_obj	*calc_pixel_frt_s(t_ray *ray, t_obj *frt, t_obj *obj)
-{
-	double	near;
-	double	curr;
 
-	if (frt == NULL)
-	{
-		curr = calc_ray_t(ray, obj);
-		if (curr <= EPSILON)
-			return (NULL);
-		ray->t = curr;
-		return (obj);
-	}
-	near = ray->t;
-	curr = calc_ray_t(ray, obj);
-	if (curr >= EPSILON && near > curr)
-	{
-		ray->t = curr;
-		return (obj);
-	}
-	return (frt);
-}
 
-t_obj	*calc_pixel_frt(t_ray *ray, t_obj *obj)
-{
-	t_obj	*frt;
 
-	if (!ray || !obj)
-		return (NULL);
-	frt = NULL;
-	while (obj != NULL)
-	{
-		frt = calc_pixel_frt_s(ray, frt, obj);
-		obj = obj->next;
-	}
-	return (frt);
-}
 
 // t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
 // {
@@ -657,40 +623,9 @@ t_obj	*calc_pixel_frt(t_ray *ray, t_obj *obj)
 // 	return (ambi);
 // }
 
-t_rgb	rgb_amp_capped(t_rgb rgb, double ratio)
-{
-	rgb.r = (double)rgb.r * ratio;
-	rgb.r = ft_min(rgb.r, 255);
-	rgb.r = ft_max(rgb.r, 0);
-	rgb.g = (double)rgb.g * ratio;
-	rgb.g = ft_min(rgb.g, 255);
-	rgb.g = ft_max(rgb.g, 0);
-	rgb.b = (double)rgb.b * ratio;
-	rgb.b = ft_min(rgb.b, 255);
-	rgb.b = ft_max(rgb.b, 0);
-	return (rgb);
-}
 
-t_cord	calc_point(t_ray *ray)
-{
-	t_cord	res;
 
-	initialise_t_cord(&res);
-	res = vec3_mul(ray->ori, ray->t);
-	res = vec3_add(ray->cord, res);
-	return (res);
-}
 
-double	calc_surface_normal_cy_distance(t_cord p, t_obj *cur)
-{
-	t_cord	vector;
-	double	res;
-
-	initialise_t_cord(&vector);
-	vector = vec3_sub(p, cur->cord);
-	res = vec3_dot(vector, cur->ori);
-	return (res);
-}
 
 // t_cord	calc_surface_normal(t_cord p, t_obj *cur)
 // {
@@ -721,178 +656,14 @@ double	calc_surface_normal_cy_distance(t_cord p, t_obj *cur)
 // 	return (res);
 // }
 
-t_cord	calc_surface_normal(t_cord p, t_obj *cur)
-{
-	t_cord	res;
-	double	m;
-	t_cord	new_center;
 
-	initialise_t_cord(&res);
-	if		(cur->type == SP)
-		res = vec3_sub(p, cur->cord);
-	else if (cur->type == PL)
-		res = cur->ori;
-	else if (cur->type == CY)
-	{
-		if		(cur->lhit == FLAT_TOP)
-			res = cur->ori;
-		else if (cur->lhit == FLAT_BOT)
-			res = vec3_mul(cur->ori, -1);
-		else if (cur->lhit == TUBE)
-		{
-			m = calc_surface_normal_cy_distance(p, cur);
-			new_center = vec3_mul(cur->ori, m);
-			new_center = vec3_add(new_center, cur->cord);
-			res = vec3_sub(p, new_center);
-		}
-	}
-	res = vec3_normalise(res);
-	return (res);
-}
 
-double	calc_pixel_l_sdwvslit(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
-{
-	t_ray	shadow;
-	t_cord	p;
-	t_cord	sur_vec;
-	t_cord	s2l_vec;
-	double	factor;
 
-	p = calc_point(ray);
-	sur_vec = calc_surface_normal(p, cur);
-	s2l_vec = vec3_sub(data->ligt.cord, p);
-	s2l_vec = vec3_normalise(s2l_vec);
-	factor = vec3_dot(sur_vec, s2l_vec);
-	if (factor < 0)
-		return (factor);
-	initialise_t_ray(&shadow);
-	shadow.cord = vec3_add(p, vec3_mul(sur_vec, EPSILON));
-	shadow.ori = s2l_vec;
-	calc_pixel_frt(&shadow, obj);
-	if (shadow.t <= EPSILON
-			|| shadow.t * shadow.t > vec3_len_sq(p, data->ligt.cord))
-		return (factor);
-	return (0.0);
-}
 
-t_rgb	rgb_add(t_rgb l1, t_rgb l2)
-{
-	l1.r = l1.r + l2.r;
-	l1.g = l1.g + l2.g;
-	l1.b = l1.b + l2.b;
-	return (l1);
-}
 
-t_rgb	rgb_mul(t_rgb l1, t_rgb l2, int bound)
-{
-	l1.r = l1.r * l2.r / bound;
-	l1.g = l1.g * l2.g / bound;
-	l1.b = l1.b * l2.b / bound;
-	return (l1);
-}
 
-t_rgb	calc_pixel_l_diffused(double factor, t_obj *cur, t_data *data)
-{
-	t_rgb	light;
 
-	initialise_t_rgb(&light);
-	light = rgb_amp_capped(data->ligt.rgb, data->ligt.bright);
-	light = rgb_amp_capped(light, factor);
-	light = rgb_mul(cur->rgb, light, 255);
-	return (light);
-}
 
-t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
-{
-	t_rgb	ambi;
-	double	factor;
-
-	initialise_t_rgb(&ambi);
-	if (!ray || !cur || !obj || !data)
-		return (ambi);
-	ambi = rgb_amp_capped(data->ambi.rgb, data->ambi.ratio);
-	ambi = rgb_mul(ambi, cur->rgb, 255);
-	factor = calc_pixel_l_sdwvslit(ray, cur, obj, data);
-	if (factor > 0)
-	{
-		ambi = rgb_add(ambi, calc_pixel_l_diffused(factor, cur, data));
-		ambi = rgb_amp_capped(ambi, 1);
-	}
-	return (ambi);
-}
-
-#define BITS_PER_BYTE 8
-#define RGB_BUFFER 8
-
-// endian == 0 is little, endian == 1 is big
-int	conv_rgb2str(char *dest, t_rgb rgb, t_data *data)
-{
-	int		bpp;
-	int		endian;
-
-	bpp = data->bits_p_pixel;
-	endian = data->endian;
-	if (bpp == 32)
-	{
-		if (endian == 0)
-		{
-			ft_memcpy(dest, &rgb.b, 1);
-			ft_memcpy(dest + 1, &rgb.g, 1);
-			ft_memcpy(dest + 2, &rgb.r, 1);
-		}
-		else if (endian == 1)
-		{
-			ft_memcpy(dest, (char *)&rgb.r + sizeof(int) - 1, 1);
-			ft_memcpy(dest + 1, (char *)&rgb.g + sizeof(int) - 1, 1);
-			ft_memcpy(dest + 2, (char *)&rgb.b + sizeof(int) - 1, 1);
-		}
-	}
-	else
-		return (ft_puterr("conv_rgb2str err; bpp value unaccounted for"), 1);
-	return (0);
-}
-
-int	calc_pixel_a(int y, int x, t_rgb rgb, t_data *data)
-{
-	int		loc;
-	char	rgb_str[RGB_BUFFER];
-	int		n_bytes;
-
-	n_bytes = data->bits_p_pixel / BITS_PER_BYTE;
-	loc = y * data->size_line;
-	loc = loc + (n_bytes * x);
-	ft_memset(rgb_str, 0, RGB_BUFFER);
-	if (conv_rgb2str(rgb_str, rgb, data))
-		return (ft_puterr("calc_pixel_a rgb_str is NULL"), 1);
-	ft_memcpy(data->addr + loc, rgb_str, n_bytes);
-	return (0);
-}
-
-int	calc_pixel(t_obj **obj, t_data **data)
-{
-	t_obj	*frt;
-	t_ray	ray;
-	int		x;
-	int		y;
-
-	frt = NULL;
-	y = 0;
-	while (y < HEIGHT)
-	{
-		x = 0;
-		while (x < WIDTH)
-		{
-			initialise_t_ray(&ray);
-			calc_ray_screen2obj(&ray, x, y, *data);
-			frt = calc_pixel_frt(&ray, *obj);
-			if (calc_pixel_a(y, x, calc_pixel_l(&ray, frt, *obj, *data), *data))
-				return (1);
-			x++;
-		}
-		y++;
-	}
-	return (0);
-}
 
 #define	ESC 65307
 #define	E 101

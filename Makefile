@@ -26,6 +26,9 @@ SRCS_NAME = \
 	src/intersect_cylinder_tube.c \
 	src/intersect_cylinder_caps.c \
 	src/intersect_dispatch.c \
+	src/lighting_color.c \
+	src/lighting_normal.c \
+	src/lighting_main.c \
 
 SRCS = $(SRCS_NAME)
 OBJS = $(SRCS:.c=.o)

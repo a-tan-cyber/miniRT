@@ -6,7 +6,7 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 17:41:51 by yunguo            #+#    #+#             */
-/*   Updated: 2026/04/29 20:34:36 by amtan            ###   ########.fr       */
+/*   Updated: 2026/04/29 21:04:27 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@
 # define RT_PI 3.14159265358979323846
 # define WIDTH	1024
 # define HEIGHT	1024
+# define BITS_PER_BYTE 8
+# define RGB_BUFFER 8
 
 # include "../libft/include/libft.h"
 # include "../minilibx-linux/mlx.h"
@@ -75,6 +77,22 @@ double	calc_intersect_cy_plin_lhit(double final, double res,
 			t_obj *cur, t_lhit lhit);
 double	calc_intersect_cy(t_ray *ray, t_obj *obj);
 double	calc_ray_t(t_ray *ray, t_obj *obj);
+t_obj	*calc_pixel_frt_s(t_ray *ray, t_obj *frt, t_obj *obj);
+t_obj	*calc_pixel_frt(t_ray *ray, t_obj *obj);
+
+t_rgb	rgb_amp_capped(t_rgb rgb, double ratio);
+t_rgb	rgb_add(t_rgb l1, t_rgb l2);
+t_rgb	rgb_mul(t_rgb l1, t_rgb l2, int bound);
+t_rgb	calc_pixel_l_diffused(double factor, t_obj *cur, t_data *data);
+int		conv_rgb2str(char *dest, t_rgb rgb, t_data *data);
+t_cord	calc_point(t_ray *ray);
+double	calc_surface_normal_cy_distance(t_cord p, t_obj *cur);
+t_cord	calc_surface_normal(t_cord p, t_obj *cur);
+double	calc_pixel_l_sdwvslit(t_ray *ray, t_obj *cur, t_obj *obj,
+			t_data *data);
+t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data);
+int		calc_pixel_a(int y, int x, t_rgb rgb, t_data *data);
+int		calc_pixel(t_obj **obj, t_data **data);
 
 int		handle_keypress(int key, void *param);
 

@@ -6,7 +6,7 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 20:33:51 by amtan             #+#    #+#             */
-/*   Updated: 2026/04/29 20:34:22 by amtan            ###   ########.fr       */
+/*   Updated: 2026/04/29 21:03:06 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,4 +58,42 @@ double	calc_ray_t(t_ray *ray, t_obj *obj)
 		res = calc_intersect_cy(ray, obj);
 	}
 	return (res);
+}
+
+t_obj	*calc_pixel_frt_s(t_ray *ray, t_obj *frt, t_obj *obj)
+{
+	double	near;
+	double	curr;
+
+	if (frt == NULL)
+	{
+		curr = calc_ray_t(ray, obj);
+		if (curr <= EPSILON)
+			return (NULL);
+		ray->t = curr;
+		return (obj);
+	}
+	near = ray->t;
+	curr = calc_ray_t(ray, obj);
+	if (curr >= EPSILON && near > curr)
+	{
+		ray->t = curr;
+		return (obj);
+	}
+	return (frt);
+}
+
+t_obj	*calc_pixel_frt(t_ray *ray, t_obj *obj)
+{
+	t_obj	*frt;
+
+	if (!ray || !obj)
+		return (NULL);
+	frt = NULL;
+	while (obj != NULL)
+	{
+		frt = calc_pixel_frt_s(ray, frt, obj);
+		obj = obj->next;
+	}
+	return (frt);
 }
