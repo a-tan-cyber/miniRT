@@ -1,36 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   miniRT.h                                           :+:      :+:    :+:   */
+/*   minirt.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yunguo <yunguo@student.42singapore.sg>     +#+  +:+       +#+        */
+/*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 17:41:51 by yunguo            #+#    #+#             */
-/*   Updated: 2026/04/02 17:41:51 by yunguo           ###   ########.fr       */
+/*   Updated: 2026/04/29 19:24:44 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINIRT_H
 # define MINIRT_H
 
-#define _USE_MATH_DEFINES
+# define _USE_MATH_DEFINES
 # include <math.h>
 # include <float.h>
 
-#define EPSILON 1e-8
+# define EPSILON 1e-8
 
 # include "../libft/include/libft.h"
 # include "../minilibx-linux/mlx.h"
 # include "minirt_struct.h"
 
-
-// int		ft_str_is_float(const char *s);
 float	ft_atof(const char *s);
 double	ft_atod(const char *s);
 int		ft_is_digit(char c);
 int		ft_skip_space(const char *s, int i);
 double	ft_read_frac(const char *s, int *i);
 int		ft_read_exp(const char *s, int *i, int *exp, int *exp_sign);
-
 
 #endif

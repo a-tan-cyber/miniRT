@@ -3,44 +3,38 @@
 /*                                                        :::      ::::::::   */
 /*   minirt_struct.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yunguo <yunguo@student.42singapore.sg>     +#+  +:+       +#+        */
+/*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 22:04:22 by yunguo            #+#    #+#             */
-/*   Updated: 2026/04/02 22:04:22 by yunguo           ###   ########.fr       */
+/*   Updated: 2026/04/29 19:29:07 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINIRT_STRUCT_H
 # define MINIRT_STRUCT_H
 
-enum e_type
+typedef enum e_type
 {
 	SP,
 	PL,
 	CY
-};
+}	t_type;
 
-typedef	enum	e_type	t_type;
-
-enum e_lhit
+typedef enum e_lhit
 {
 	FLAT_TOP,
 	FLAT_BOT,
 	TUBE
-};
+}	t_lhit;
 
-typedef	enum	e_lhit	t_lhit;
-
-struct s_cord
+typedef struct s_cord
 {
 	double	x;
 	double	y;
 	double	z;
-};
+}	t_cord;
 
-typedef struct	s_cord	t_cord;
-
-struct s_calc
+typedef struct s_calc
 {
 	double	a;
 	double	b;
@@ -49,21 +43,16 @@ struct s_calc
 	double	sto2;
 	double	delta;
 	t_cord	x;
-};
+}	t_calc;
 
-typedef struct	s_calc	t_calc;
-
-struct s_rgb
+typedef struct s_rgb
 {
 	int	r;
 	int	g;
 	int	b;
-};
+}	t_rgb;
 
-typedef struct	s_rgb	t_rgb;
-
-// ori is the direction/orientation, cord is the origin/coordinate
-struct s_obj
+typedef struct s_obj
 {
 	t_type			type;
 	t_cord			cord;
@@ -74,37 +63,29 @@ struct s_obj
 	double			plane_constant;
 	t_lhit			lhit;
 	struct s_obj	*next;
-};
+}	t_obj;
 
-typedef struct	s_obj	t_obj;
-
-struct s_ambi
+typedef struct s_ambi
 {
 	double	ratio;
 	t_rgb	rgb;
-};
+}	t_ambi;
 
-typedef struct	s_ambi	t_ambi;
-
-struct s_cam
+typedef struct s_cam
 {
 	t_cord	cord;
 	t_cord	ori;
 	int		fov;
-};
+}	t_cam;
 
-typedef struct	s_cam	t_cam;
-
-struct s_ligt
+typedef struct s_ligt
 {
 	t_cord	cord;
 	double	bright;
 	t_rgb	rgb;
-};
+}	t_ligt;
 
-typedef struct	s_ligt	t_ligt;
-
-struct s_data
+typedef struct s_data
 {
 	t_bool	ambi_loaded;
 	t_ambi	ambi;
@@ -120,18 +101,13 @@ struct s_data
 	int		size_line;
 	int		endian;
 	t_obj	*obj_head;
-};
+}	t_data;
 
-typedef struct	s_data	t_data;
-
-// origin == cord; orientation == ori
-struct s_ray
+typedef struct s_ray
 {
 	double	t;
 	t_cord	cord;
 	t_cord	ori;
-};
-
-typedef struct s_ray	t_ray;
+}	t_ray;
 
 #endif
