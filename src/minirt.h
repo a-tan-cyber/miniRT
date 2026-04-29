@@ -6,7 +6,7 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 17:41:51 by yunguo            #+#    #+#             */
-/*   Updated: 2026/04/29 19:24:44 by amtan            ###   ########.fr       */
+/*   Updated: 2026/04/29 19:43:15 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,12 @@
 # include "../libft/include/libft.h"
 # include "../minilibx-linux/mlx.h"
 # include "minirt_struct.h"
+
+void	initialise_t_obj(t_obj **obj);
+void	initialise_t_cord(t_cord *cord);
+void	initialise_t_rgb(t_rgb *rgb);
+void	initialise_t_data(t_data *cur_data);
+int		initialise_structs(t_obj **obj, t_data **data);
 
 float	ft_atof(const char *s);
 double	ft_atod(const char *s);

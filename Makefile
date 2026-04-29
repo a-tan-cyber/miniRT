@@ -14,7 +14,8 @@ SRCS_NAME = \
 	src/ft_atof.c \
 	src/ft_float_utils.c \
 	src/ft_str_is_float.c \
-	src/minirt_main.c
+	src/minirt_main.c \
+	src/init.c
 
 SRCS = $(SRCS_NAME)
 OBJS = $(SRCS:.c=.o)
