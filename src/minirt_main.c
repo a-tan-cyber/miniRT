@@ -54,7 +54,7 @@ int	add_rt_data_d_a(const char **split_arr, t_data **data)
 	char	**arr;
 
 	if (ft_arrlen(split_arr) != 3)
-		return (-1);
+		return (ft_puterr("ambient wrong number of fields"), -1);
 	if (ft_str_is_float(split_arr[1]) == FALSE)
 		return (ft_puterr("data.ambi ratio is not float"), 1);
 	(*data)->ambi.ratio = ft_atod(split_arr[1]);
@@ -139,7 +139,7 @@ int	add_rt_data_d_c(const char **split_arr, t_cam *cam)
 	char	**arr;
 
 	if (ft_arrlen(split_arr) != 4)
-		return (-1);
+		return (ft_puterr("camera wrong number of fields"), -1);
 	arr = split_3_float(split_arr[1], ",");
 	if (!arr)
 		return (ft_puterr("data.cam.cord error"), 2);
@@ -224,7 +224,7 @@ int	add_rt_data_d_l(const char **split_arr, t_ligt *ligt)
 	char	**arr;
 
 	if (ft_arrlen(split_arr) != 4)
-		return (-1);
+		return (ft_puterr("light wrong number of fields"), -1);
 	arr = split_3_float(split_arr[1], ",");
 	if (!arr)
 		return (ft_puterr("data.ligt.cord error"), 2);
@@ -285,7 +285,7 @@ int	add_rt_data_s_sp(const char **split_arr, t_obj *new)
 	char	**arr;
 
 	if (ft_arrlen(split_arr) != 4)
-		return (-2);
+		return (ft_puterr("sphere wrong number of fields"), -2);
 	new->type = SP;
 	arr = split_3_float(split_arr[1], ",");
 	if (!arr)
@@ -318,7 +318,7 @@ int	add_rt_data_s_pl(const char **split_arr, t_obj *new)
 	char	**arr;
 
 	if (ft_arrlen(split_arr) != 4)
-		return (-2);
+		return (ft_puterr("plane wrong number of fields"), -2);
 	new->type = PL;
 	arr = split_3_float(split_arr[1], ",");
 	if (!arr)
@@ -381,7 +381,7 @@ int	add_rt_data_s_cy(const char **split_arr, t_obj *new)
 	char	**arr;
 
 	if (ft_arrlen(split_arr) != 6)
-		return (-2);
+		return (ft_puterr("cylinder wrong number of fields"), -2);
 	new->type = CY;
 	arr = split_3_float(split_arr[1], ",");
 	if (!arr)
@@ -507,6 +507,19 @@ int	add_rt_data(const char *trimmed, t_obj **obj, t_data **data)
 	return (free_arr(split_arr), 0);
 }
 
+int	validate_required_data(t_data *data)
+{
+	if (!data)
+		return (ft_puterr("missing scene data"), 1);
+	if (data->ambi_loaded == FALSE)
+		return (ft_puterr("missing ambient lighting"), 2);
+	if (data->cam_loaded == FALSE)
+		return (ft_puterr("missing camera"), 3);
+	if (data->ligt_loaded == FALSE)
+		return (ft_puterr("missing light"), 4);
+	return (0);
+}
+
 int	initialise_rt(const char *str, t_obj **obj, t_data **data)
 {
 	char	*line;
@@ -530,6 +543,8 @@ int	initialise_rt(const char *str, t_obj **obj, t_data **data)
 		line = get_next_line(fd);
 	}
 	close(fd);
+	if (validate_required_data(*data) != 0)
+		return (3);
 	return (0);
 }
 
