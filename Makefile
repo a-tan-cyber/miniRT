@@ -35,7 +35,10 @@ SRCS_NAME = \
 	src/parser_main.c \
 	src/parser_split.c \
 	src/object_list.c \
-
+	src/camera_move.c \
+	src/input.c \
+	src/debug_print.c \
+	
 SRCS = $(SRCS_NAME)
 OBJS = $(SRCS:.c=.o)
 

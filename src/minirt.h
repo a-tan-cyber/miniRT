@@ -6,7 +6,7 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 17:41:51 by yunguo            #+#    #+#             */
-/*   Updated: 2026/04/29 21:25:25 by amtan            ###   ########.fr       */
+/*   Updated: 2026/04/29 21:49:37 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,20 @@
 # define HEIGHT	1024
 # define BITS_PER_BYTE 8
 # define RGB_BUFFER 8
+
+# define ESC 65307
+# define E 101
+# define S 115
+# define D 100
+# define F 102
+# define T 116
+# define G 103
+# define I 105
+# define J 106
+# define K 107
+# define L 108
+# define STEP 5
+# define TILT 0.1
 
 # include "../libft/include/libft.h"
 # include "../minilibx-linux/mlx.h"
@@ -125,6 +139,11 @@ t_obj	*go_t_obj_last(t_obj *obj);
 t_obj	*cre_t_obj_next(t_obj *obj);
 t_obj	*cre_t_obj_next(t_obj *obj);
 
+t_cord	calc_vector_up(t_cord f);
+void	move_cam_strafe(int key, t_data *data);
+void	ins_vec3_dbl(t_cord *step, double x, double y, double z);
+void	move_cam_aim(int key, t_data *data);
+void	ft_print_t_cord(t_cord cord);
 int		handle_keypress(int key, void *param);
 
 float	ft_atof(const char *s);

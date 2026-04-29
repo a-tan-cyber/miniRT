@@ -6,12 +6,37 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 17:17:44 by yunguo            #+#    #+#             */
-/*   Updated: 2026/04/29 21:29:08 by amtan            ###   ########.fr       */
+/*   Updated: 2026/04/29 21:43:43 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
 
+int	main(int argc, char **argv)
+{
+	t_obj	*obj;
+	t_data	*data;
+
+	if (argc != 2)
+		return (ft_puterr("invalid number of arg"), 1);
+	if (check_str_end(argv[1], ".rt") != TRUE)
+		return (ft_puterr("invalid extension"), 2);
+	obj = NULL;
+	data = NULL;
+	if (initialise_structs(&obj, &data) != 0)
+		return (free_rt(&obj, &data), 3);
+	if (initialise_rt(argv[1], &obj, &data) != 0)
+		return (free_rt(&obj, &data), 4);
+	if (initialise_minilibx(&data) != 0)
+		return (free_rt(&obj, &data), 5);
+	if (calc_pixel(&obj, &data) != 0)
+		return (free_rt(&obj, &data), 6);
+	if (add_event_hook(data) != 0)
+		return (free_rt(&obj, &data), 7);
+	if (run_window_loop(data) != 0)
+		return (free_rt(&obj, &data), 8);
+	return (free_rt(&obj, &data), 0);
+}
 
 // // cylinder: |((P - C) X N)|^2 = r^2
 // double	calc_intersect_cy(t_ray *ray, t_obj *obj)
@@ -40,11 +65,6 @@
 // 		return (-1);
 // 	return (final);
 // }
-
-
-
-
-
 
 // t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
 // {
@@ -78,7 +98,10 @@
 // 	calc_pixel_frt(&shadow, obj);
 // 	double	factor;
 // 	factor = vec3_dot(sur_vec, s2l_vec);
-// 	if (shadow.t <= EPSILON || (shadow.t + EPSILON) * (shadow.t + EPSILON) >= vec3_dot(vec3_sub(p, data->ligt.cord), vec3_sub(p, data->ligt.cord)))
+// 	if (shadow.t <= EPSILON ||
+// 		(shadow.t + EPSILON) * (shadow.t + EPSILON) >=
+// 		vec3_dot(vec3_sub(p, data->ligt.cord),
+// 		vec3_sub(p, data->ligt.cord)))
 // 	{
 // 		//add diffuse light
 // 		light = rgb_amp_capped(data->ligt.rgb, data->ligt.bright);
@@ -91,10 +114,6 @@
 // 	}
 // 	return (ambi);
 // }
-
-
-
-
 
 // t_cord	calc_surface_normal(t_cord p, t_obj *cur)
 // {
@@ -124,160 +143,3 @@
 // 	res = vec3_normalise(res);
 // 	return (res);
 // }
-
-
-
-
-
-
-
-
-
-
-#define	ESC 65307
-#define	E 101
-#define	S 115
-#define	D 100
-#define	F 102
-#define	T 116
-#define	G 103
-#define	I 105
-#define	J 106
-#define	K 107
-#define	L 108
-#define	STEP 5
-#define	TILT 0.1
-
-
-
-t_cord	calc_vector_up(t_cord f)
-{
-	t_cord	up;
-
-	initialise_t_cord(&up);
-	if (f.x == 0.0f && (f.y == 1.0f || f.y == -1.0f) && f.z == 0.0f)
-		up.z = -1.0f;
-	else
-		up.y = 1.0f;
-	return (up);
-}
-
-// T == forward; G == backward;
-// E == UP; D == Down; S == Left; F ==right;
-void	move_cam_strafe(int key, t_data *data)
-{
-	t_cord	up;
-	t_cord	right;
-
-	if (key == T)
-		data->cam.cord = vec3_add(data->cam.cord, vec3_mul(data->cam.ori, STEP));
-	else if (key == G)
-		data->cam.cord = vec3_sub(data->cam.cord, vec3_mul(data->cam.ori, STEP));
-	else
-	{
-		up = vec3_normalise(calc_vector_up(data->cam.ori));
-		right = vec3_cross(data->cam.ori, up);
-		right = vec3_normalise(right);
-		if		(key == E)
-			data->cam.cord = vec3_add(data->cam.cord, vec3_mul(up, STEP));
-		else if	(key == D)
-			data->cam.cord = vec3_sub(data->cam.cord, vec3_mul(up, STEP));
-		else if (key == S)
-			data->cam.cord = vec3_sub(data->cam.cord, vec3_mul(right, STEP));
-		else if (key == F)
-			data->cam.cord = vec3_add(data->cam.cord, vec3_mul(right, STEP));
-	}
-	calc_pixel(&data->obj_head, &data);
-	mlx_put_image_to_window(data->mlx, data->win, data->img, 0, 0);
-}
-
-void	ins_vec3_dbl(t_cord *step, double x, double y, double z)
-{
-	step->x = x;
-	step->y = y;
-	step->z = z;
-}
-
-void	move_cam_aim(int key, t_data *data)
-{
-	if		(key == I)
-		data->cam.ori.y += TILT;
-	else if	(key == K)
-		data->cam.ori.y -= TILT;
-	else if (key == J)
-		data->cam.ori.x += TILT;
-	else if (key == L)
-		data->cam.ori.x -= TILT;
-	data->cam.ori = vec3_normalise(data->cam.ori);
-	calc_pixel(&data->obj_head, &data);
-	mlx_put_image_to_window(data->mlx, data->win, data->img, 0, 0);
-}
-
-#include <stdio.h>
-void	ft_print_t_cord(t_cord cord)
-{
-	//change printf
-	// printf("%lf", cord.x);
-	// ft_putstr(", ");
-	// printf("%lf", cord.y);
-	// ft_putstr(", ");
-	// printf("%lf", cord.z);
-	printf("% lf, % lf, % lf; ", cord.x, cord.y, cord.z);
-	fflush(stdout);
-}
-
-// sudo showkey -a
-// linux: ESC == 65307;
-// linux: e == 101; s == 115; d == 100; f == 102;
-int	handle_keypress(int key, void *param)
-{
-	t_data	*data;
-
-	data = (t_data *)param;
-	if (key == ESC)
-		return (free_rt(&data->obj_head, &data), exit(0), 0);
-	if (key == T || key == G || key == E || key == S || key == D || key == F)
-	{
-		move_cam_strafe(key, data);
-	}
-	else if (key == I || key == J || key == K || key == L)
-	{
-		move_cam_aim(key, data);
-	}
-	else
-		return (0);
-	ft_putstr("Camera coord: ");
-	ft_print_t_cord(data->cam.cord);
-	ft_putstr("Camera angle: ");
-	ft_print_t_cord(data->cam.ori);
-	ft_putstr("\n");
-	return (0);
-}
-
-
-
-int	main(int argc, char **argv)
-{
-	t_obj	*obj;
-	t_data	*data;
-
-	if (argc != 2)
-		return (ft_puterr("invalid number of arg"), 1);
-	if (check_str_end(argv[1], ".rt") != TRUE)
-		return (ft_puterr("invalid extension"), 2);
-	obj = NULL;
-	data = NULL;
-	if (initialise_structs(&obj, &data) != 0)
-		return (free_rt(&obj, &data), 3);
-	if (initialise_rt(argv[1], &obj, &data) != 0)
-		return (free_rt(&obj, &data), 4);
-	if (initialise_minilibx(&data) != 0)
-		return (free_rt(&obj, &data), 5);
-	if (calc_pixel(&obj, &data) != 0)
-		return (free_rt(&obj, &data), 6);
-	if (add_event_hook(data) != 0)
-		return (free_rt(&obj, &data), 7);
-	if (run_window_loop(data) != 0)
-		return (free_rt(&obj, &data), 8);
-	return (free_rt(&obj, &data), 0);
-}

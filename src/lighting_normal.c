@@ -6,7 +6,7 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 20:56:44 by amtan             #+#    #+#             */
-/*   Updated: 2026/04/29 20:57:19 by amtan            ###   ########.fr       */
+/*   Updated: 2026/04/29 21:48:01 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,13 +40,13 @@ t_cord	calc_surface_normal(t_cord p, t_obj *cur)
 	t_cord	new_center;
 
 	initialise_t_cord(&res);
-	if		(cur->type == SP)
+	if (cur->type == SP)
 		res = vec3_sub(p, cur->cord);
 	else if (cur->type == PL)
 		res = cur->ori;
 	else if (cur->type == CY)
 	{
-		if		(cur->lhit == FLAT_TOP)
+		if (cur->lhit == FLAT_TOP)
 			res = cur->ori;
 		else if (cur->lhit == FLAT_BOT)
 			res = vec3_mul(cur->ori, -1);
