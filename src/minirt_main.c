@@ -515,7 +515,7 @@ int	initialise_rt(const char *str, t_obj **obj, t_data **data)
 
 	fd = open(str, O_RDONLY);
 	if (fd < 0)
-		return (1);
+		return (ft_puterr("cannot open scene file"), 1);
 	line = get_next_line(fd);
 	while (line != NULL)
 	{

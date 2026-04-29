@@ -24,6 +24,13 @@ void	ft_putstr(const char *str)
 
 void	ft_puterr(char *str)
 {
+	static int	error_printed;
+
+	if (!error_printed)
+	{
+		ft_write_all(STDERR_FILENO, "Error\n", 6);
+		error_printed = 1;
+	}
 	ft_write_all(STDERR_FILENO, str, ft_strlen(str));
 	ft_write_all(STDERR_FILENO, "\n", 1);
 }
