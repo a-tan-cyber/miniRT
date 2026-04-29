@@ -853,7 +853,6 @@ t_calc	calc_intersect_cy_tube_dis(t_ray *ray, t_obj *obj)
 double	calc_intersect_cy_tube(t_ray *ray, t_obj *obj)
 {
 	t_calc	calc;
-	double	r;
 	double	t;
 	double	m;
 
