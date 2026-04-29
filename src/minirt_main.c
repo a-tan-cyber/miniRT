@@ -1418,6 +1418,9 @@ int	redx(void *param)
 #define	STEP 5
 #define	TILT 0.1
 
+#define	CONFIGURE_NOTIFY 22
+#define	STRUCTURE_NOTIFY_MASK (1L << 17)
+
 t_cord	calc_vector_up(t_cord f)
 {
 	t_cord	up;
@@ -1522,10 +1525,24 @@ int	handle_keypress(int key, void *param)
 	return (0);
 }
 
+int	redraw_window(void *param)
+{
+	t_data	*data;
+
+	data = (t_data *)param;
+	if (!data || !data->mlx || !data->win || !data->img)
+		return (0);
+	mlx_put_image_to_window(data->mlx, data->win, data->img, 0, 0);
+	return (0);
+}
+
 int	add_event_hook(t_data *data)
 {
 	mlx_hook(data->win, 17, 0, redx, (void *)data);
 	mlx_hook(data->win, 2, 1L << 0, handle_keypress, (void *)data);
+	mlx_expose_hook(data->win, redraw_window, (void *)data);
+	mlx_hook(data->win, CONFIGURE_NOTIFY, STRUCTURE_NOTIFY_MASK,
+		redraw_window, (void *)data);
 	return (0);
 }
 
