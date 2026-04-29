@@ -6,7 +6,7 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 17:17:44 by yunguo            #+#    #+#             */
-/*   Updated: 2026/04/29 20:08:23 by amtan            ###   ########.fr       */
+/*   Updated: 2026/04/29 20:16:05 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -532,26 +532,7 @@ int	initialise_rt(const char *str, t_obj **obj, t_data **data)
 	return (0);
 }
 
-int	initialise_minilibx(t_data **data)
-{
-	t_data	*curr;
 
-	curr = *data;
-	curr->mlx = mlx_init();
-	if (!curr->mlx)
-		return (ft_puterr("initialise_minilibx: failed to initialise curr->mlx"), 1);
-	curr->win = mlx_new_window(curr->mlx, WIDTH, HEIGHT, "miniRT");
-	if (!curr->win)
-		return (ft_puterr("initialise_minilibx: failed to initialise curr->win"), 2);
-	curr->img = mlx_new_image(curr->mlx, WIDTH, HEIGHT);
-	if (!curr->img)
-		return (ft_puterr("initialise_minilibx: failed to initialise curr->img"), 3);
-	curr->addr = mlx_get_data_addr(curr->img, &curr->bits_p_pixel,
-		&curr->size_line, &curr->endian);
-	if (!curr->addr)
-		return (ft_puterr("initialise_minilibx: failed to initialise curr->addr"), 4);
-	return (0);
-}
 
 double	ft_discriminant(double a, double b, double c)
 {
@@ -1131,58 +1112,6 @@ int	calc_pixel(t_obj **obj, t_data **data)
 	return (0);
 }
 
-void	free_t_obj_all(t_obj *head)
-{
-	t_obj	*cur;
-
-	while (head)
-	{
-		cur = head;
-		head = head->next;
-		ft_sfree((void **)&cur);
-	}
-}
-
-void	free_t_data(t_data *data)
-{
-	if (!data)
-		return ;
-	if (data->img)
-		mlx_destroy_image(data->mlx, data->img);
-	if (data->win)
-		mlx_destroy_window(data->mlx, data->win);
-	if (data->mlx)
-	{
-		mlx_destroy_display(data->mlx);
-		ft_sfree((void **)&data->mlx);
-	}
-	ft_sfree((void **)&data);
-}
-
-void	free_rt(t_obj **obj, t_data **data)
-{
-	if (obj && *obj)
-	{
-		free_t_obj_all(*obj);
-		*obj = NULL;
-	}
-	if (data && *data)
-	{
-		free_t_data(*data);
-		*data = NULL;
-	}
-}
-
-int	redx(void *param)
-{
-	t_data	*data;
-
-	data = (t_data *)param;
-	free_rt(&data->obj_head, &data);
-	exit(0);
-	return (0);
-}
-
 #define	ESC 65307
 #define	E 101
 #define	S 115
@@ -1197,8 +1126,7 @@ int	redx(void *param)
 #define	STEP 5
 #define	TILT 0.1
 
-#define	CONFIGURE_NOTIFY 22
-#define	STRUCTURE_NOTIFY_MASK (1L << 17)
+
 
 t_cord	calc_vector_up(t_cord f)
 {
@@ -1304,33 +1232,7 @@ int	handle_keypress(int key, void *param)
 	return (0);
 }
 
-int	redraw_window(void *param)
-{
-	t_data	*data;
 
-	data = (t_data *)param;
-	if (!data || !data->mlx || !data->win || !data->img)
-		return (0);
-	mlx_put_image_to_window(data->mlx, data->win, data->img, 0, 0);
-	return (0);
-}
-
-int	add_event_hook(t_data *data)
-{
-	mlx_hook(data->win, 17, 0, redx, (void *)data);
-	mlx_hook(data->win, 2, 1L << 0, handle_keypress, (void *)data);
-	mlx_expose_hook(data->win, redraw_window, (void *)data);
-	mlx_hook(data->win, CONFIGURE_NOTIFY, STRUCTURE_NOTIFY_MASK,
-		redraw_window, (void *)data);
-	return (0);
-}
-
-int	run_window_loop(t_data *data)
-{
-	mlx_put_image_to_window(data->mlx, data->win, data->img, 0, 0);
-	mlx_loop(data->mlx);
-	return (0);
-}
 
 int	main(int argc, char **argv)
 {

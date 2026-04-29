@@ -6,7 +6,7 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 17:41:51 by yunguo            #+#    #+#             */
-/*   Updated: 2026/04/29 20:08:39 by amtan            ###   ########.fr       */
+/*   Updated: 2026/04/29 20:19:13 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,17 @@ double	ft_normalise_y(int y, double height, double fov);
 void	calc_orientation(double xf, double yf, t_cord ori, t_ray *ray);
 void	calc_ray_screen2obj(t_ray *ray, int x, int y, t_data *data);
 void	initialise_t_ray(t_ray *ray);
+
+int		initialise_minilibx(t_data **data);
+void	free_t_obj_all(t_obj *head);
+void	free_t_data(t_data *data);
+void	free_rt(t_obj **obj, t_data **data);
+int		redx(void *param);
+int		redraw_window(void *param);
+int		add_event_hook(t_data *data);
+int		run_window_loop(t_data *data);
+
+int		handle_keypress(int key, void *param);
 
 float	ft_atof(const char *s);
 double	ft_atod(const char *s);
