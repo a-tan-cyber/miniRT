@@ -6,7 +6,7 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 17:41:51 by yunguo            #+#    #+#             */
-/*   Updated: 2026/04/29 20:19:13 by amtan            ###   ########.fr       */
+/*   Updated: 2026/04/29 20:29:20 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,12 @@ int		redx(void *param);
 int		redraw_window(void *param);
 int		add_event_hook(t_data *data);
 int		run_window_loop(t_data *data);
+
+double	ft_discriminant(double a, double b, double c);
+double	ft_solve_quadratic_abd_near(double a, double b, double delta);
+double	ft_solve_quadratic_abd_far(double a, double b, double delta);
+double	calc_intersect_sp(t_ray *ray, t_obj *obj);
+double	calc_intersect_pl(t_ray *ray, t_obj *obj);
 
 int		handle_keypress(int key, void *param);
 

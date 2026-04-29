@@ -22,6 +22,7 @@ SRCS_NAME = \
 	src/ray_init.c \
 	src/cleanup.c \
 	src/window.c \
+	src/intersect_basic.c \
 
 SRCS = $(SRCS_NAME)
 OBJS = $(SRCS:.c=.o)
