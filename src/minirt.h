@@ -6,7 +6,7 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 17:41:51 by yunguo            #+#    #+#             */
-/*   Updated: 2026/04/29 20:29:20 by amtan            ###   ########.fr       */
+/*   Updated: 2026/04/29 20:34:36 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,20 @@ double	ft_solve_quadratic_abd_near(double a, double b, double delta);
 double	ft_solve_quadratic_abd_far(double a, double b, double delta);
 double	calc_intersect_sp(t_ray *ray, t_obj *obj);
 double	calc_intersect_pl(t_ray *ray, t_obj *obj);
+
+double	calc_intersect_cy_tube_height(double t, t_calc calc);
+void	initialise_t_calc(t_calc *calc);
+t_calc	calc_intersect_cy_tube_dis(t_ray *ray, t_obj *obj);
+double	calc_intersect_cy_tube(t_ray *ray, t_obj *obj);
+double	calc_intersect_pl_hlp(t_cord rayori, t_cord raydir,
+			t_cord center, t_cord ori);
+double	ft_min_dbl(double f1, double f2);
+int		calc_intersect_cy_plin(double t, t_cord top,
+			t_ray *ray, t_obj *obj);
+double	calc_intersect_cy_plin_lhit(double final, double res,
+			t_obj *cur, t_lhit lhit);
+double	calc_intersect_cy(t_ray *ray, t_obj *obj);
+double	calc_ray_t(t_ray *ray, t_obj *obj);
 
 int		handle_keypress(int key, void *param);
 

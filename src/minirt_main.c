@@ -6,7 +6,7 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 17:17:44 by yunguo            #+#    #+#             */
-/*   Updated: 2026/04/29 20:28:51 by amtan            ###   ########.fr       */
+/*   Updated: 2026/04/29 20:34:19 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -532,104 +532,17 @@ int	initialise_rt(const char *str, t_obj **obj, t_data **data)
 	return (0);
 }
 
-// m = (P - C) dot N
-double	calc_intersect_cy_tube_height(double t, t_calc calc)
-{
-	double	m;
-	
-	m = calc.sto2 + t * calc.sto1;
-	return (m);
-}
 
-void	initialise_t_calc(t_calc *calc)
-{
-	calc->a = 0;
-	calc->b = 0;
-	calc->c = 0;
-	calc->sto1 = 0;
-	calc->sto2 = 0;
-	calc->delta = 0;
-	initialise_t_cord(&calc->x);
-}
 
-t_calc	calc_intersect_cy_tube_dis(t_ray *ray, t_obj *obj)
-{
-	t_calc	calc;
-	double	r;
 
-	initialise_t_calc(&calc);
-	calc.x = vec3_sub(ray->cord, obj->cord);
-	r = obj->dia / 2;
-	calc.a = vec3_dot(ray->ori, obj->ori);
-	calc.sto1 = calc.a;
-	calc.a = vec3_dot(ray->ori, ray->ori) - (calc.a * calc.a);
-	calc.b = 2 * (vec3_dot(calc.x, ray->ori) - vec3_dot(obj->ori, calc.x)
-					* vec3_dot(ray->ori, obj->ori));
-	calc.c = vec3_dot(obj->ori, calc.x);
-	calc.sto2 = calc.c;
-	calc.c = vec3_dot(calc.x, calc.x) - (calc.c * calc.c) - (r * r);
-	calc.delta = ft_discriminant(calc.a, calc.b, calc.c);
-	return (calc);
-}
 
-double	calc_intersect_cy_tube(t_ray *ray, t_obj *obj)
-{
-	t_calc	calc;
-	double	t;
-	double	m;
 
-	calc = calc_intersect_cy_tube_dis(ray, obj);
-	if (calc.delta < EPSILON)
-		return (-1);
-	t = ft_solve_quadratic_abd_near(calc.a, calc.b, calc.delta);
-	m = calc_intersect_cy_tube_height(t, calc);
-	if (m > -obj->higt / 2.0 && m < obj->higt / 2.0)
-		return (t);
-	t = ft_solve_quadratic_abd_far(calc.a, calc.b, calc.delta);
-	m = calc_intersect_cy_tube_height(t, calc);
-	if (m > -obj->higt / 2.0 && m < obj->higt / 2.0)
-		return (t);
-	return (-1);
-}
 
-double	calc_intersect_pl_hlp(t_cord rayori, t_cord raydir, t_cord center,
-		t_cord normal)
-{
-	double	a;
-	double	t;
 
-	a = vec3_dot(raydir, normal);
-	if (-EPSILON < a && a < EPSILON)
-		return (-1);
-	t = vec3_dot(center, normal) - vec3_dot(rayori, normal);
-	t = t / a;
-	if (t < EPSILON)
-		return (-1);
-	return (t);
-}
 
-double	ft_min_dbl(double f1, double f2)
-{
-	if (f1 < f2)
-		return (f1);
-	return (f2);
-}
 
-int	calc_intersect_cy_plin(double t, t_cord top, t_ray *ray, t_obj *obj)
-{
-	t_cord	p;
-	t_cord	v;
-	double	m;
-	double	r;
-	
-	p = vec3_add(ray->cord, vec3_mul(ray->ori, t));
-	v = vec3_sub(top, p);
-	m = vec3_dot(v, v);
-	r = obj->dia / 2;
-	if (m <= r * r)
-		return (1);
-	return (0);
-}
+
+
 
 // // cylinder: |((P - C) X N)|^2 = r^2
 // double	calc_intersect_cy(t_ray *ray, t_obj *obj)
@@ -658,63 +571,6 @@ int	calc_intersect_cy_plin(double t, t_cord top, t_ray *ray, t_obj *obj)
 // 		return (-1);
 // 	return (final);
 // }
-
-double	calc_intersect_cy_plin_lhit(double final, double res, t_obj *cur,
-		t_lhit lhit)
-{
-	if (final < res)
-		return (final);
-	cur->lhit = lhit;
-	return (res);
-}
-
-// cylinder: |((P - C) X N)|^2 = r^2
-double	calc_intersect_cy(t_ray *ray, t_obj *obj)
-{
-	double	res1;
-	double	final;
-	t_cord	top;
-	t_cord	bot;
-
-	final = DBL_MAX;
-	top = vec3_add(obj->cord, vec3_mul(obj->ori, obj->higt / 2.0));
-	bot = vec3_sub(obj->cord, vec3_mul(obj->ori, obj->higt / 2.0));
-	res1 = calc_intersect_cy_tube(ray, obj);
-	if (res1 > 0)
-	{
-		final = res1;
-		obj->lhit = TUBE;
-	}
-	res1 = calc_intersect_pl_hlp(ray->cord, ray->ori, top, obj->ori);
-	if (res1 > 0 && calc_intersect_cy_plin(res1, top, ray, obj) == 1)
-		final = calc_intersect_cy_plin_lhit(final, res1, obj, FLAT_TOP);
-	res1 = calc_intersect_pl_hlp(ray->cord, ray->ori, bot, obj->ori);
-	if (res1 > 0 && calc_intersect_cy_plin(res1, bot, ray, obj) == 1)
-		final = calc_intersect_cy_plin_lhit(final, res1, obj, FLAT_BOT);
-	if (final == DBL_MAX)
-		return (-1);
-	return (final);
-}
-
-double	calc_ray_t(t_ray *ray, t_obj *obj)
-{
-	double	res;
-
-	res = -1.0;
-	if (obj->type == SP)
-	{
-		res = calc_intersect_sp(ray, obj);
-	}
-	else if (obj->type == PL)
-	{
-		res = calc_intersect_pl(ray, obj);
-	}
-	else if (obj->type == CY)
-	{
-		res = calc_intersect_cy(ray, obj);
-	}
-	return (res);
-}
 
 
 t_obj	*calc_pixel_frt_s(t_ray *ray, t_obj *frt, t_obj *obj)

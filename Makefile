@@ -23,6 +23,9 @@ SRCS_NAME = \
 	src/cleanup.c \
 	src/window.c \
 	src/intersect_basic.c \
+	src/intersect_cylinder_tube.c \
+	src/intersect_cylinder_caps.c \
+	src/intersect_dispatch.c \
 
 SRCS = $(SRCS_NAME)
 OBJS = $(SRCS:.c=.o)
