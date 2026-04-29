@@ -6,7 +6,7 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 17:17:44 by yunguo            #+#    #+#             */
-/*   Updated: 2026/04/29 19:44:01 by amtan            ###   ########.fr       */
+/*   Updated: 2026/04/29 19:54:58 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -588,35 +588,6 @@ double	ft_normalise_y(int y, double height, double fov)
 	return (res);
 }
 
-
-t_cord	vec3_cross(t_cord f, t_cord up)
-{
-	t_cord	res;
-
-	initialise_t_cord(&res);
-	res.x = (f.y * up.z) - (up.y * f.z);
-	res.y = (up.x * f.z) - (f.x * up.z);
-	res.z = (f.x * up.y) - (up.x * f.y);
-	return (res);
-}
-
-t_cord	vec3_normalise(t_cord ori)
-{
-	t_cord	res;
-	double	mag;
-
-	mag = (ori.x * ori.x) + (ori.y * ori.y) + (ori.z * ori.z);
-	mag = sqrt(mag);
-	initialise_t_cord(&res);
-	if (mag > 0)
-	{
-		res.x = ori.x / mag;
-		res.y = ori.y / mag;
-		res.z = ori.z / mag;
-	}
-	return (res);
-}
-
 void	calc_orientation(double xf, double yf, t_cord ori, t_ray *ray)
 {
 	t_cord	f;
@@ -650,21 +621,6 @@ void	calc_ray_screen2obj(t_ray *ray, int x, int y, t_data *data)
 	yf = ft_normalise_y(y, HEIGHT, fov);
 	calc_orientation(xf, yf, data->cam.ori, ray);
 	ray->cord = data->cam.cord;
-}
-
-double	vec3_dot(t_cord c1, t_cord c2)
-{
-	return (c1.x * c2.x + c1.y * c2.y + c1.z * c2.z);
-}
-
-t_cord	vec3_sub(t_cord c1, t_cord c2)
-{
-	t_cord	res;
-
-	res.x = c1.x - c2.x;
-	res.y = c1.y - c2.y;
-	res.z = c1.z - c2.z;
-	return (res);
 }
 
 double	ft_discriminant(double a, double b, double c)
@@ -737,28 +693,6 @@ double	calc_intersect_pl(t_ray *ray, t_obj *obj)
 	if (t < EPSILON)
 		return (-1);
 	return (t);
-}
-
-t_cord	vec3_mul(t_cord x, double times)
-{
-	t_cord	res;
-
-	initialise_t_cord(&res);
-	res.x = x.x * times;
-	res.y = x.y * times;
-	res.z = x.z * times;
-	return (res);
-}
-
-t_cord	vec3_add(t_cord x, t_cord y)
-{
-	t_cord	res;
-
-	initialise_t_cord(&res);
-	res.x = x.x + y.x;
-	res.y = x.y + y.y;
-	res.z = x.z + y.z;
-	return (res);
 }
 
 // m = (P - C) dot N
@@ -1128,17 +1062,6 @@ t_cord	calc_surface_normal(t_cord p, t_obj *cur)
 	}
 	res = vec3_normalise(res);
 	return (res);
-}
-
-double	vec3_len_sq(t_cord p, t_cord cord)
-{
-	t_cord	vector;
-	double	t;
-
-	initialise_t_cord(&vector);
-	vector = vec3_sub(p, cord);
-	t = vec3_dot(vector, vector);
-	return (t);
 }
 
 double	calc_pixel_l_sdwvslit(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
