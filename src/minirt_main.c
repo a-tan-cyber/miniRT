@@ -16,6 +16,7 @@
 double	vec3_dot(t_cord c1, t_cord c2);
 void	initialise_t_cord(t_cord *cord);
 void	initialise_t_rgb(t_rgb *rgb);
+int		chk_normalised(t_cord ori);
 
 // if s1 is smaller than min or bigger than max, then return 0
 int	validate_str_int_range(const char *s1, const char *min, const char *max)
@@ -149,8 +150,9 @@ int	add_rt_data_d_c(const char **split_arr, t_cam *cam)
 	arr = split_3_double_range(split_arr[2], ",", -1, 1);
 	if (!arr)
 		return (ft_puterr("data.cam.ori error"), 3);
-	if (ins_vec3(&cam->ori, arr[0], arr[1], arr[2]))
-		return (free_arr(arr), -2);;
+	if (ins_vec3(&cam->ori, arr[0], arr[1], arr[2])
+		|| chk_normalised(cam->ori))
+		return (ft_puterr("data.cam.ori error"), free_arr(arr), -2);
 	free_arr(arr);
 	if (validate_str_int_range(split_arr[3], "0", "180") == FALSE)
 		return (ft_puterr("data.cam FOV val invalid"), 4);
@@ -329,8 +331,9 @@ int	add_rt_data_s_pl(const char **split_arr, t_obj *new)
 	arr = split_3_double_range(split_arr[2], ",", -1, 1);
 	if (!arr)
 		return (ft_puterr("obj.ori error"), 2);
-	if (ins_vec3(&new->ori, arr[0], arr[1], arr[2]))
-		return (free_arr(arr), -3);
+	if (ins_vec3(&new->ori, arr[0], arr[1], arr[2])
+		|| chk_normalised(new->ori))
+		return (ft_puterr("obj.ori error"), free_arr(arr), -3);
 	free_arr(arr);
 	arr = split_3_int_range(split_arr[3], ",", "0", "255");
 	if (!arr)
