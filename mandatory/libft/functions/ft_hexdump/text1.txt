@@ -1,0 +1,11 @@
+abcdef123456
+dsfsTurn-in directory: ex03/
+Files to turn in: Makefile, and files needed for your program
+Allowed functions: close, open, read, write, malloc, free, strerror, basename
+•Create a program called ft_hexdump, which performs the same function as the
+system’s hexdump command-line tool, without redirection.
+•The only option you need to handle is -C.
+•The submission directory should contain a Makefile with the following rules: all,
+clean, fclean.
+•You may use the variable errno.
+10
