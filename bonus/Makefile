@@ -1,6 +1,7 @@
 NAME = miniRT_bonus
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
+SPEED = -o3 -ffast-math -march=native
 
 LIBFT_DIR = libft
 LIBFT = $(LIBFT_DIR)/libft.a
@@ -54,7 +55,8 @@ $(NAME): $(OBJS) $(LIBFT) $(MLX)
 	$(CC) $(CFLAGS) $(OBJS) $(LIBFT) $(MLX_FLAGS) -o $(NAME)
 
 %.o: %.c
-	$(CC) $(CFLAGS) -I$(LIBFT_DIR)/include -I$(MLX_DIR) -c $< -o $@
+# 	$(CC) $(CFLAGS) -I$(LIBFT_DIR)/include -I$(MLX_DIR) -c $< -o $@
+	$(CC) $(CFLAGS) $(SPEED) -I$(LIBFT_DIR)/include -I$(MLX_DIR) -c $< -o $@
 
 bonus: all
 

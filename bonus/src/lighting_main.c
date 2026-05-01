@@ -25,21 +25,6 @@ double	pow64_dbl(double x)
 	return (res);
 }
 
-// reflection vec: $$\vec{R} = 2(\vec{N} \cdot \vec{L})\vec{N} - \vec{L}$$
-double	calc_pixel_l_sdwvslit_phong(t_cord s2l_vec, t_cord sur_vec,
-			t_cord s2c_vec, double factor)
-{
-	t_cord	rfl_vec;
-	double	res;
-
-	initialise_t_cord(&rfl_vec);
-	rfl_vec = vec3_mul(sur_vec, factor * 2.0);
-	rfl_vec = vec3_sub(rfl_vec, s2l_vec);
-	res = vec3_dot(s2c_vec, rfl_vec);
-	res = ft_max_dbl(0, res);
-	res = pow64_dbl(res);
-	return (res);
-}
 
 t_cord	vec3_2pvec_norm(t_cord p1, t_cord p2)
 {
@@ -51,7 +36,8 @@ t_cord	vec3_2pvec_norm(t_cord p1, t_cord p2)
 	return (res);
 }
 
-double	calc_pixel_l_sdwvslit(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
+
+double	calc_pixel_l_sdwvslit(t_box box, t_obj *obj, t_data *data)
 {
 	t_ray	shadow;
 	t_cord	p;
@@ -59,11 +45,10 @@ double	calc_pixel_l_sdwvslit(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
 	t_cord	s2l_vec;
 	double	factor;
 
-	p = calc_point(ray);
-	sur_vec = calc_surface_normal(p, cur, ray);
-	s2l_vec = vec3_sub(data->ligt.cord, p);
-	s2l_vec = vec3_normalise(s2l_vec);
-	factor = vec3_dot(sur_vec, s2l_vec);
+	p = box.p;
+	sur_vec = box.sur_vec;
+	s2l_vec = box.s2l_vec;
+	factor = box.ln_dotp;
 	if (factor < 0)
 		return (factor);
 	initialise_t_ray(&shadow);
@@ -103,63 +88,92 @@ double	calc_pixel_l_sdwvslit(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
 // 	}
 // 	return (0.0);
 // }
-/* 
-t_rgb	calc_pixel_l_diffused(double factor, t_obj *cur, t_data *data)
+
+// t_rgb	calc_pixel_l_diffused(double factor, t_obj *cur, t_data *data)
+// {
+// 	t_rgb	light;
+
+// 	initialise_t_rgb(&light);
+// 	light = rgb_amp_capped(data->ligt.rgb, data->ligt.bright);
+// 	light = rgb_amp_capped(light, factor);
+// 	light = rgb_mul(cur->rgb, light, 255);
+// 	return (light);
+// }
+#define	SPECULAR_COEFFICIENT 1.5
+
+// reflection vec: $$\vec{R} = 2(\vec{N} \cdot \vec{L})\vec{N} - \vec{L}$$
+t_rgb	calc_pixel_l_specular(t_box box, t_data *data)
 {
+	t_cord	rfl_vec;
+	t_cord	s2c_vec;
 	t_rgb	light;
+	double	res;
 
 	initialise_t_rgb(&light);
 	light = rgb_amp_capped(data->ligt.rgb, data->ligt.bright);
-	light = rgb_amp_capped(light, factor);
-	light = rgb_mul(cur->rgb, light, 255);
+	s2c_vec = vec3_2pvec_norm(data->cam.cord, box.p);
+	initialise_t_cord(&rfl_vec);
+	rfl_vec = vec3_mul(box.sur_vec, box.ln_dotp * 2.0);
+	rfl_vec = vec3_sub(rfl_vec, box.s2l_vec);
+	res = vec3_dot(s2c_vec, rfl_vec);
+	res = ft_max_dbl(0, res);
+	res = pow64_dbl(res);
+	res *= SPECULAR_COEFFICIENT;
+	light = rgb_amp_capped(light, res);
 	return (light);
 }
- */
+
 t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
 {
 	t_rgb	ambi;
 	double	factor;
+	t_box	box;
 
 	initialise_t_rgb(&ambi);
 	if (!ray || !cur || !obj || !data)
 		return (ambi);
 	ambi = rgb_amp_capped(data->ambi.rgb, data->ambi.ratio);
 	ambi = rgb_mul(ambi, cur->rgb, 255);
-	factor = calc_pixel_l_sdwvslit(ray, cur, obj, data);
+	box.p = calc_point(ray);
+	box.sur_vec = calc_surface_normal(box.p, cur, ray);
+	box.s2l_vec = vec3_2pvec_norm(data->ligt.cord, box.p);
+	box.ln_dotp = vec3_dot(box.sur_vec, box.s2l_vec);
+	factor = calc_pixel_l_sdwvslit(box, obj, data);
 	if (factor > 0)
 	{
 		ambi = rgb_add(ambi, calc_pixel_l_diffused(factor, cur, data));
+		ambi = rgb_add(ambi, calc_pixel_l_specular(box, data));
 		ambi = rgb_amp_capped(ambi, 1);
 	}
 	return (ambi);
 }
 
-// int	calc_pixel_a(int y, int x, t_rgb rgb, t_data *data)
-// {
-// 	int		loc;
-// 	int		n_bytes;
-
-// 	n_bytes = data->bits_p_pixel / BITS_PER_BYTE;
-// 	loc = y * data->size_line;
-// 	loc = loc + (n_bytes * x);
-// 	*(unsigned int *)(data->addr + loc) = (rgb.r << 16) | (rgb.g << 8) | rgb.b;
-// 	return (0);
-// }
 int	calc_pixel_a(int y, int x, t_rgb rgb, t_data *data)
 {
 	int		loc;
-	char	rgb_str[RGB_BUFFER];
 	int		n_bytes;
 
 	n_bytes = data->bits_p_pixel / BITS_PER_BYTE;
 	loc = y * data->size_line;
 	loc = loc + (n_bytes * x);
-	ft_memset(rgb_str, 0, RGB_BUFFER);
-	if (conv_rgb2str(rgb_str, rgb, data))
-		return (ft_puterr("calc_pixel_a rgb_str is NULL"), 1);
-	ft_memcpy(data->addr + loc, rgb_str, n_bytes);
+	*(unsigned int *)(data->addr + loc) = (rgb.r << 16) | (rgb.g << 8) | rgb.b;
 	return (0);
 }
+// int	calc_pixel_a(int y, int x, t_rgb rgb, t_data *data)
+// {
+// 	int		loc;
+// 	char	rgb_str[RGB_BUFFER];
+// 	int		n_bytes;
+
+// 	n_bytes = data->bits_p_pixel / BITS_PER_BYTE;
+// 	loc = y * data->size_line;
+// 	loc = loc + (n_bytes * x);
+// 	ft_memset(rgb_str, 0, RGB_BUFFER);
+// 	if (conv_rgb2str(rgb_str, rgb, data))
+// 		return (ft_puterr("calc_pixel_a rgb_str is NULL"), 1);
+// 	ft_memcpy(data->addr + loc, rgb_str, n_bytes);
+// 	return (0);
+// }
 
 void	free_thrd(t_thrd **top)
 {

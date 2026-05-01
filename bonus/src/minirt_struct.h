@@ -123,4 +123,12 @@ typedef struct s_ray
 	t_lhit	lhit;
 }	t_ray;
 
+typedef struct s_box
+{
+	t_cord	p;
+	t_cord	sur_vec;
+	t_cord	s2l_vec;
+	double	ln_dotp;
+}	t_box;
+
 #endif
