@@ -76,7 +76,7 @@ int	initialise_rt(const char *str, t_obj **obj, t_data **data)
 	line = get_next_line(fd);
 	while (line != NULL)
 	{
-		trimmed = ft_strtrim(line, " \n");
+		trimmed = ft_strtrim(line, " \r\n");
 		ft_sfree((void **)&line);
 		if (ft_strcmp(trimmed, "") != 0)
 		{

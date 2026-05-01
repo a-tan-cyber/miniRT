@@ -17,4 +17,5 @@ void	initialise_t_ray(t_ray *ray)
 	ray->t = -1.0f;
 	initialise_t_cord(&ray->cord);
 	initialise_t_cord(&ray->ori);
+	ray->lhit = -1;
 }

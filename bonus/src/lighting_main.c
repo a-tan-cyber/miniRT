@@ -36,12 +36,12 @@ double	calc_pixel_l_sdwvslit_phong(t_cord s2l_vec, t_cord sur_vec,
 	rfl_vec = vec3_mul(sur_vec, factor * 2.0);
 	rfl_vec = vec3_sub(rfl_vec, s2l_vec);
 	res = vec3_dot(s2c_vec, rfl_vec);
-	res = max_dbl(0, res);
+	res = ft_max_dbl(0, res);
 	res = pow64_dbl(res);
 	return (res);
 }
 
-t_cord	vec3_p2vec_norm(t_cord p1, t_cord p2)
+t_cord	vec3_2pvec_norm(t_cord p1, t_cord p2)
 {
 	t_cord	res;
 
@@ -60,8 +60,9 @@ double	calc_pixel_l_sdwvslit(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
 	double	factor;
 
 	p = calc_point(ray);
-	sur_vec = calc_surface_normal(p, cur);
-	s2l_vec = vec3_p2vec_norm(data->ligt.cord, p);
+	sur_vec = calc_surface_normal(p, cur, ray);
+	s2l_vec = vec3_sub(data->ligt.cord, p);
+	s2l_vec = vec3_normalise(s2l_vec);
 	factor = vec3_dot(sur_vec, s2l_vec);
 	if (factor < 0)
 		return (factor);
@@ -71,14 +72,49 @@ double	calc_pixel_l_sdwvslit(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
 	calc_pixel_frt(&shadow, obj);
 	if (shadow.t <= EPSILON
 		|| shadow.t * shadow.t > vec3_len_sq(p, data->ligt.cord))
-	{
-		factor += calc_pixel_l_sdwvslit_phong(s2l_vec, sur_vec,
-					vec3_p2vec_norm(data->cam.cord, p), factor);
 		return (factor);
-	}
 	return (0.0);
 }
 
+// double	calc_pixel_l_sdwvslit(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
+// {
+// 	t_ray	shadow;
+// 	t_cord	p;
+// 	t_cord	sur_vec;
+// 	t_cord	s2l_vec;
+// 	double	factor;
+
+// 	p = calc_point(ray);
+// 	sur_vec = calc_surface_normal(p, cur);
+// 	s2l_vec = vec3_2pvec_norm(data->ligt.cord, p);
+// 	factor = vec3_dot(sur_vec, s2l_vec);
+// 	if (factor < 0)
+// 		return (factor);
+// 	initialise_t_ray(&shadow);
+// 	shadow.cord = vec3_add(p, vec3_mul(sur_vec, EPSILON));
+// 	shadow.ori = s2l_vec;
+// 	calc_pixel_frt(&shadow, obj);
+// 	if (shadow.t <= EPSILON
+// 		|| shadow.t * shadow.t > vec3_len_sq(p, data->ligt.cord))
+// 	{
+// 		factor += calc_pixel_l_sdwvslit_phong(s2l_vec, sur_vec,
+// 					vec3_2pvec_norm(data->cam.cord, p), factor);
+// 		return (factor);
+// 	}
+// 	return (0.0);
+// }
+/* 
+t_rgb	calc_pixel_l_diffused(double factor, t_obj *cur, t_data *data)
+{
+	t_rgb	light;
+
+	initialise_t_rgb(&light);
+	light = rgb_amp_capped(data->ligt.rgb, data->ligt.bright);
+	light = rgb_amp_capped(light, factor);
+	light = rgb_mul(cur->rgb, light, 255);
+	return (light);
+}
+ */
 t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
 {
 	t_rgb	ambi;
@@ -98,36 +134,143 @@ t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
 	return (ambi);
 }
 
+// int	calc_pixel_a(int y, int x, t_rgb rgb, t_data *data)
+// {
+// 	int		loc;
+// 	int		n_bytes;
+
+// 	n_bytes = data->bits_p_pixel / BITS_PER_BYTE;
+// 	loc = y * data->size_line;
+// 	loc = loc + (n_bytes * x);
+// 	*(unsigned int *)(data->addr + loc) = (rgb.r << 16) | (rgb.g << 8) | rgb.b;
+// 	return (0);
+// }
 int	calc_pixel_a(int y, int x, t_rgb rgb, t_data *data)
 {
 	int		loc;
+	char	rgb_str[RGB_BUFFER];
 	int		n_bytes;
 
 	n_bytes = data->bits_p_pixel / BITS_PER_BYTE;
 	loc = y * data->size_line;
 	loc = loc + (n_bytes * x);
-	*(unsigned int *)(data->addr + loc) = (rgb.r << 16) | (rgb.g << 8) | rgb.b;
+	ft_memset(rgb_str, 0, RGB_BUFFER);
+	if (conv_rgb2str(rgb_str, rgb, data))
+		return (ft_puterr("calc_pixel_a rgb_str is NULL"), 1);
+	ft_memcpy(data->addr + loc, rgb_str, n_bytes);
 	return (0);
 }
 
-int	task_distributer()
+void	free_thrd(t_thrd **top)
 {
-	long	nprocs = sysconf(_SC_NPROCESSORS_CONF);
-	if (nprocs < 1)
-		return (ft_puterr("sysconf processor number < 1."), 1);
+	t_thrd	*head;
+	t_thrd	*cur;
+
+	head = *top;
+	while (head)
+	{
+		cur = head;
+		head = head->next;
+		ft_sfree((void **)&cur);
+	}
+	*top = NULL;
+}
+
+t_thrd	*cre_t_thrd_new(int id, long nprocs, t_data *data)
+{
+	t_thrd	*new;
+	int		total_len;
+	int 	thrd_len;
+
+	new = malloc(sizeof(t_thrd));
+	if (!new)
+		return (NULL);
+	new->created = FALSE;
+	new->data = data;
+	total_len = HEIGHT * WIDTH;
+	thrd_len = total_len / nprocs;
+	new->id = id;
+	new->next = NULL;
+	new->obj = data->obj_head;
+	new->starty = id * thrd_len / WIDTH;
+	if (id == nprocs - 1)
+		new->endy = HEIGHT;
+	else
+		new->endy = (id * thrd_len + thrd_len) / WIDTH;
+	return (new);
+}
+
+t_thrd	*cre_t_thrd_next(t_thrd *thrd, int id, long nprocs, t_data *data)
+{
+	t_thrd	*new;
+
+	new = cre_t_thrd_new(id, nprocs, data);
+	if (!new)
+		return (NULL);
+	if (!thrd)
+		return (new);
+	thrd->next = new;
+	return (new);
+}
+
+t_thrd	*cre_thrddata(t_data *data)
+{
+	long	nprocs;
+	long	i;
+	t_thrd	*head;
+	t_thrd	*curr;
 	
+	nprocs = sysconf(_SC_NPROCESSORS_CONF);
+	if (nprocs < 1)
+		return (ft_puterr("sysconf processor number < 1"), NULL);
+	i = 0;
+	head = cre_t_thrd_new(i, nprocs, data);
+	if (!head)
+		return (NULL);
+	curr = head;
+	i++;
+	while (i < nprocs)
+	{
+		curr = cre_t_thrd_next(curr, i, nprocs, data);
+		if (!curr)
+			return (ft_puterr("cre_t_thrddata error"), free_thrd(&head), NULL);
+		i++;
+	}
+	return (head);
 }
 
-#include <pthread.h>
-
-void	calc_pixel_thrd_run(thrd)
+void	*calc_pixel_thrd_run(void *param)
 {
+	t_obj	*frt;
+	t_ray	ray;
+	int		y;
+	int		x;
+	t_thrd	*thrd;
 
+	thrd = (t_thrd *)param;
+	thrd->created = TRUE;
+	frt = NULL;
+	y = thrd->starty;
+	while (y < thrd->endy)
+	{
+		x = 0;
+		while (x < WIDTH)
+		{
+			initialise_t_ray(&ray);
+			calc_ray_screen2obj(&ray, x, y, thrd->data);
+			frt = calc_pixel_frt(&ray, thrd->obj);
+			calc_pixel_a(y, x, calc_pixel_l(&ray, frt, thrd->obj, thrd->data),
+							thrd->data);
+			x++;
+		}
+		y++;
+	}
+	return (NULL);
 }
 
-void	calc_pixel_thrd_join(t_data_thrd *head)
+void	calc_pixel_thrd_join(t_thrd *head)
 {
-	t_data_thrd	*thrd;
+	t_thrd	*thrd;
 
 	thrd = head;
 	while (thrd)
@@ -139,33 +282,27 @@ void	calc_pixel_thrd_join(t_data_thrd *head)
 	}
 }
 
-// free_thrddata(&head)
-
-// thrd->created
-// thrd->thrd
-// thrd->id
-// thrd->start
-// thrd->end
-// thrd->next
-
 int	calc_pixel(t_obj **obj, t_data **data)
 {
-	t_data_thrd	*head;
-	t_data_thrd	*thrd;
+	t_thrd	*head;
+	t_thrd	*thrd;
 
-	head = cre_thrddata(data);
+	(void) obj;
+	head = cre_thrddata(*data);
+	if (head == NULL)
+		return (-1);
 	thrd = head;
 	while (thrd)
 	{
 		if (pthread_create(&thrd->thrd, NULL, calc_pixel_thrd_run, (void *)thrd))
 			return (ft_puterr("calc_pixel pthread creation failed thread "),
 						ft_putnbr(thrd->id), calc_pixel_thrd_join(head),
-							free_thrddata(&head), 1);
+							free_thrd(&head), 1);
 		thrd->created = TRUE;
 		thrd = thrd->next;
 	}
 	calc_pixel_thrd_join(head);
-	free_thrddata(&head);
+	free_thrd(&head);
 	return (0);
 }
 

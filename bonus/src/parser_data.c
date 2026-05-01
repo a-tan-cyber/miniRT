@@ -23,19 +23,19 @@ int	add_rt_data_d_a(const char **split_arr, t_data **data)
 	(*data)->ambi.ratio = ft_atod(split_arr[1]);
 	if ((*data)->ambi.ratio > 1.0 || (*data)->ambi.ratio < 0.0)
 		return (ft_puterr("data.ambi value is out of range"), -2);
-	arr = ft_split(split_arr[2], ",");
+	arr = ft_split(split_arr[2], " ,\r\n");
 	if (!arr)
 		return (ft_puterr("malloc failed (data.ambi.rgb)"), 2);
 	if (ft_arrlen((const char **)arr) != 3)
 		return (ft_puterr("data.ambi wrong no. of rgb val"), free_arr(arr), 3);
 	if (validate_str_int_range(arr[0], "0", "255") == FALSE)
-		return (ft_puterr("data.ambi r value invalid"), free_arr(arr), 4);
+		return (ft_puterr("data.ambi.r value invalid"), free_arr(arr), 4);
 	(*data)->ambi.rgb.r = ft_atoi(arr[0]);
 	if (validate_str_int_range(arr[1], "0", "255") == FALSE)
-		return (ft_puterr("data.ambi g value invalid"), free_arr(arr), 5);
+		return (ft_puterr("data.ambi.g value invalid"), free_arr(arr), 5);
 	(*data)->ambi.rgb.g = ft_atoi(arr[1]);
 	if (validate_str_int_range(arr[2], "0", "255") == FALSE)
-		return (ft_puterr("data.ambi b value invalid"), free_arr(arr), 6);
+		return (ft_puterr("data.ambi.b value invalid"), free_arr(arr), 6);
 	(*data)->ambi.rgb.b = ft_atoi(arr[2]);
 	return (free_arr(arr), 0);
 }

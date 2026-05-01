@@ -23,7 +23,6 @@ void	initialise_t_obj(t_obj **obj)
 	initialise_t_cord(&cur_obj->ori);
 	cur_obj->higt = 0;
 	initialise_t_rgb(&cur_obj->rgb);
-	cur_obj->lhit = -1;
 	cur_obj->next = NULL;
 }
 

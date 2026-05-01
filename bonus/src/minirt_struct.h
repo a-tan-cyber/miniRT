@@ -61,7 +61,6 @@ typedef struct s_obj
 	double			higt;
 	t_rgb			rgb;
 	double			plane_constant;
-	t_lhit			lhit;
 	struct s_obj	*next;
 }	t_obj;
 
@@ -103,11 +102,25 @@ typedef struct s_data
 	t_obj	*obj_head;
 }	t_data;
 
+
+typedef struct s_thrd
+{
+	pthread_t		thrd;
+	t_data			*data;
+	t_obj			*obj;
+	struct s_thrd	*next;
+	t_bool			created;
+	int				id;
+	int				starty;
+	int				endy;
+}	t_thrd;
+
 typedef struct s_ray
 {
 	double	t;
 	t_cord	cord;
 	t_cord	ori;
+	t_lhit	lhit;
 }	t_ray;
 
 #endif

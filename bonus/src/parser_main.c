@@ -43,7 +43,7 @@ int	add_rt_data(const char *trimmed, t_obj **obj, t_data **data)
 	char	**split_arr;
 	char	*curr;
 
-	split_arr = ft_split(trimmed, " \t");
+	split_arr = ft_split(trimmed, " \t\n");
 	if (!split_arr || !split_arr[0])
 		return (free_arr(split_arr), -1);
 	curr = split_arr[0];
@@ -76,7 +76,7 @@ int	initialise_rt(const char *str, t_obj **obj, t_data **data)
 	line = get_next_line(fd);
 	while (line != NULL)
 	{
-		trimmed = ft_strtrim(line, " \n");
+		trimmed = ft_strtrim(line, " \r\n");
 		ft_sfree((void **)&line);
 		if (ft_strcmp(trimmed, "") != 0)
 		{

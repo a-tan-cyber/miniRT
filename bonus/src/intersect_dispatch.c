@@ -27,14 +27,14 @@ double	calc_intersect_cy(t_ray *ray, t_obj *obj)
 	if (res1 > 0)
 	{
 		final = res1;
-		obj->lhit = TUBE;
+		ray->lhit = TUBE;
 	}
 	res1 = calc_intersect_pl_hlp(ray->cord, ray->ori, top, obj->ori);
 	if (res1 > 0 && calc_intersect_cy_plin(res1, top, ray, obj) == 1)
-		final = calc_intersect_cy_plin_lhit(final, res1, obj, FLAT_TOP);
+		final = calc_intersect_cy_plin_lhit(final, res1, ray, FLAT_TOP);
 	res1 = calc_intersect_pl_hlp(ray->cord, ray->ori, bot, obj->ori);
 	if (res1 > 0 && calc_intersect_cy_plin(res1, bot, ray, obj) == 1)
-		final = calc_intersect_cy_plin_lhit(final, res1, obj, FLAT_BOT);
+		final = calc_intersect_cy_plin_lhit(final, res1, ray, FLAT_BOT);
 	if (final == DBL_MAX)
 		return (-1);
 	return (final);

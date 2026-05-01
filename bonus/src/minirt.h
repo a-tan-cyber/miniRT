@@ -16,8 +16,11 @@
 # define _USE_MATH_DEFINES
 # include <math.h>
 # include <float.h>
+# include <pthread.h>
 
-# define EPSILON 1e-8
+# include <stdio.h> // remove
+
+# define EPSILON 1e-4
 # define RT_PI 3.14159265358979323846
 # define WIDTH	1024
 # define HEIGHT	1024
@@ -85,10 +88,11 @@ double	calc_intersect_cy_tube(t_ray *ray, t_obj *obj);
 double	calc_intersect_pl_hlp(t_cord rayori, t_cord raydir,
 			t_cord center, t_cord ori);
 double	ft_min_dbl(double f1, double f2);
+double	ft_max_dbl(double f1, double f2);
 int		calc_intersect_cy_plin(double t, t_cord top,
 			t_ray *ray, t_obj *obj);
 double	calc_intersect_cy_plin_lhit(double final, double res,
-			t_obj *cur, t_lhit lhit);
+			t_ray *ray, t_lhit lhit);
 double	calc_intersect_cy(t_ray *ray, t_obj *obj);
 double	calc_ray_t(t_ray *ray, t_obj *obj);
 t_obj	*calc_pixel_frt_s(t_ray *ray, t_obj *frt, t_obj *obj);
@@ -101,7 +105,7 @@ t_rgb	calc_pixel_l_diffused(double factor, t_obj *cur, t_data *data);
 int		conv_rgb2str(char *dest, t_rgb rgb, t_data *data);
 t_cord	calc_point(t_ray *ray);
 double	calc_surface_normal_cy_distance(t_cord p, t_obj *cur);
-t_cord	calc_surface_normal(t_cord p, t_obj *cur);
+t_cord	calc_surface_normal(t_cord p, t_obj *cur, t_ray *ray);
 double	calc_pixel_l_sdwvslit(t_ray *ray, t_obj *cur, t_obj *obj,
 			t_data *data);
 t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data);

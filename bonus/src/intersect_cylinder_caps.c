@@ -58,11 +58,11 @@ int	calc_intersect_cy_plin(double t, t_cord top, t_ray *ray, t_obj *obj)
 	return (0);
 }
 
-double	calc_intersect_cy_plin_lhit(double final, double res, t_obj *cur,
+double	calc_intersect_cy_plin_lhit(double final, double res, t_ray *ray,
 		t_lhit lhit)
 {
 	if (final < res)
 		return (final);
-	cur->lhit = lhit;
+	ray->lhit = lhit;
 	return (res);
 }

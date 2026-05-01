@@ -33,7 +33,7 @@ double	calc_surface_normal_cy_distance(t_cord p, t_obj *cur)
 	return (res);
 }
 
-t_cord	calc_surface_normal(t_cord p, t_obj *cur)
+t_cord	calc_surface_normal(t_cord p, t_obj *cur, t_ray *ray)
 {
 	t_cord	res;
 	double	m;
@@ -46,11 +46,11 @@ t_cord	calc_surface_normal(t_cord p, t_obj *cur)
 		res = cur->ori;
 	else if (cur->type == CY)
 	{
-		if (cur->lhit == FLAT_TOP)
+		if (ray->lhit == FLAT_TOP)
 			res = cur->ori;
-		else if (cur->lhit == FLAT_BOT)
+		else if (ray->lhit == FLAT_BOT)
 			res = vec3_mul(cur->ori, -1);
-		else if (cur->lhit == TUBE)
+		else if (ray->lhit == TUBE)
 		{
 			m = calc_surface_normal_cy_distance(p, cur);
 			new_center = vec3_mul(cur->ori, m);
