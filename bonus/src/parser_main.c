@@ -32,6 +32,8 @@ int	add_rt_data_s(const char **split_arr, t_obj **obj, t_data **data)
 		err = add_rt_data_s_pl(split_arr, new);
 	else if (ft_strcmp(split_arr[0], "cy") == 0)
 		err = add_rt_data_s_cy(split_arr, new);
+	else if (ft_strcmp(split_arr[0], "el") == 0)
+		err = add_rt_data_s_el(split_arr, new);
 	else
 		return (ft_puterr("invalid shape identifier"),
 			ft_sfree((void **)&new), -11);
@@ -53,7 +55,7 @@ int	add_rt_data(const char *trimmed, t_obj **obj, t_data **data)
 			return (free_arr(split_arr), 1);
 	}
 	else if (!ft_strcmp(curr, "sp") || !ft_strcmp(curr, "pl")
-		|| !ft_strcmp(curr, "cy"))
+		|| !ft_strcmp(curr, "cy") || !ft_strcmp(curr, "el"))
 	{
 		if (add_rt_data_s((const char **)split_arr, obj, data) != 0)
 			return (free_arr(split_arr), 2);

@@ -12,6 +12,20 @@
 
 #include "minirt.h"
 
+// typedef struct s_obj
+// {
+// 	t_type			type;
+// 	t_cord			cord;
+// 	double			dia;
+// 	t_cord			dia_xyz;
+// 	t_cord			ori;
+// 	double			higt;
+// 	t_rgb			rgb;
+// 	double			plane_constant;
+// 	t_bool			chkr;
+// 	struct s_obj	*next;
+// }	t_obj;
+
 void	initialise_t_obj(t_obj **obj)
 {
 	t_obj	*cur_obj;
@@ -20,9 +34,12 @@ void	initialise_t_obj(t_obj **obj)
 	cur_obj->type = -1;
 	initialise_t_cord(&cur_obj->cord);
 	cur_obj->dia = 0;
+	initialise_t_cord(&cur_obj->dia_xyz);
 	initialise_t_cord(&cur_obj->ori);
 	cur_obj->higt = 0;
 	initialise_t_rgb(&cur_obj->rgb);
+	cur_obj->plane_constant = 0;
+	cur_obj->chkr = FALSE;
 	cur_obj->next = NULL;
 }
 

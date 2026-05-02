@@ -57,6 +57,10 @@ double	calc_ray_t(t_ray *ray, t_obj *obj)
 	{
 		res = calc_intersect_cy(ray, obj);
 	}
+	else if (obj->type == EL)
+	{
+		res = calc_intersect_el(ray, obj);
+	}
 	return (res);
 }
 

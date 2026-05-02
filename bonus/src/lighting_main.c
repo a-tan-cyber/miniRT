@@ -36,7 +36,6 @@ t_cord	vec3_2pvec_norm(t_cord p1, t_cord p2)
 	return (res);
 }
 
-
 double	calc_pixel_l_sdwvslit(t_box box, t_obj *obj, t_data *data)
 {
 	t_ray	shadow;
@@ -159,21 +158,6 @@ int	calc_pixel_a(int y, int x, t_rgb rgb, t_data *data)
 	*(unsigned int *)(data->addr + loc) = (rgb.r << 16) | (rgb.g << 8) | rgb.b;
 	return (0);
 }
-// int	calc_pixel_a(int y, int x, t_rgb rgb, t_data *data)
-// {
-// 	int		loc;
-// 	char	rgb_str[RGB_BUFFER];
-// 	int		n_bytes;
-
-// 	n_bytes = data->bits_p_pixel / BITS_PER_BYTE;
-// 	loc = y * data->size_line;
-// 	loc = loc + (n_bytes * x);
-// 	ft_memset(rgb_str, 0, RGB_BUFFER);
-// 	if (conv_rgb2str(rgb_str, rgb, data))
-// 		return (ft_puterr("calc_pixel_a rgb_str is NULL"), 1);
-// 	ft_memcpy(data->addr + loc, rgb_str, n_bytes);
-// 	return (0);
-// }
 
 void	free_thrd(t_thrd **top)
 {
@@ -233,7 +217,7 @@ t_thrd	*cre_thrddata(t_data *data)
 	long	i;
 	t_thrd	*head;
 	t_thrd	*curr;
-	
+
 	nprocs = sysconf(_SC_NPROCESSORS_CONF);
 	if (nprocs < 1)
 		return (ft_puterr("sysconf processor number < 1"), NULL);

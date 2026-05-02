@@ -33,15 +33,29 @@ double	calc_surface_normal_cy_distance(t_cord p, t_obj *cur)
 	return (res);
 }
 
+t_cord	calc_surface_normal_el(t_cord p, t_obj *cur)
+{
+	t_cord	p_local;
+	t_cord	r;
+
+	initialise_t_cord(&p_local);
+	p_local = vec3_sub(p, cur->cord);
+	initialise_t_cord(&r);
+	r = vec3_div(cur->dia_xyz, 2.0);
+	r = vec3_mul_vec3(r, r);
+	return (vec3_div_vec3(p_local, r));
+}
+
 t_cord	calc_surface_normal(t_cord p, t_obj *cur, t_ray *ray)
 {
 	t_cord	res;
-	double	m;
 	t_cord	new_center;
 
 	initialise_t_cord(&res);
 	if (cur->type == SP)
 		res = vec3_sub(p, cur->cord);
+	else if (cur->type == EL)
+		res = calc_surface_normal_el(p, cur);
 	else if (cur->type == PL)
 		res = cur->ori;
 	else if (cur->type == CY)
@@ -52,12 +66,11 @@ t_cord	calc_surface_normal(t_cord p, t_obj *cur, t_ray *ray)
 			res = vec3_mul(cur->ori, -1);
 		else if (ray->lhit == TUBE)
 		{
-			m = calc_surface_normal_cy_distance(p, cur);
-			new_center = vec3_mul(cur->ori, m);
+			new_center = vec3_mul(cur->ori,
+				calc_surface_normal_cy_distance(p, cur));
 			new_center = vec3_add(new_center, cur->cord);
 			res = vec3_sub(p, new_center);
 		}
 	}
-	res = vec3_normalise(res);
-	return (res);
+	return (vec3_normalise(res));
 }

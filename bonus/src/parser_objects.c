@@ -41,6 +41,52 @@ int	add_rt_data_d(const char **split_arr, t_data **data)
 	return (err);
 }
 
+int	ins_chkr(t_bool *chkr, const char *str)
+{
+	if (!ft_strcmp("is_chkr", str))
+	{
+		*chkr = TRUE;
+	}
+	else if (!ft_strcmp("no_chkr", str))
+	{
+		*chkr = FALSE;
+	}
+	else
+	{
+		return (ft_puterr("ins_chkr value is invalid"), -1);
+	}
+	return (0);
+}
+
+int	add_rt_data_s_el(const char **split_arr, t_obj *new)
+{
+	char	**arr;
+
+	if (ft_arrlen(split_arr) != 5)
+		return (ft_puterr("ellipsoid wrong number of fields"), -2);
+	new->type = EL;
+	arr = split_3_float(split_arr[1], ",");
+	if (!arr)
+		return (ft_puterr("obj.cord el error"), 2);
+	if (ins_vec3(&new->cord, arr[0], arr[1], arr[2]))
+		return (free_arr(arr), -3);
+	free_arr(arr);
+	arr = split_3_float(split_arr[2], ",");
+	if (!arr)
+		return (ft_puterr("obj.diaxyz el error"), 3);
+	if (ins_vec3(&new->dia_xyz, arr[0], arr[1], arr[2]))
+		return (free_arr(arr), -4);
+	free_arr(arr);
+	arr = split_3_int_range(split_arr[3], ",", "0", "255");
+	if (!arr)
+		return (ft_puterr("obj.rgb el error"), 4);
+	if (ins_rgb(&new->rgb, arr[0], arr[1], arr[2]))
+		return (free_arr(arr), -5);
+	if (ins_chkr(&new->chkr, split_arr[4]))
+		return (free_arr(arr), -6);
+	return (free_arr(arr), 0);
+}
+
 /* 
 Sphere:
 sp 0.0,0.0,20.6 12.6 10,0,255

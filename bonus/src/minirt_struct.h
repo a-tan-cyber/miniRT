@@ -16,6 +16,7 @@
 typedef enum e_type
 {
 	SP,
+	EL,
 	PL,
 	CY
 }	t_type;
@@ -43,6 +44,8 @@ typedef struct s_calc
 	double	sto2;
 	double	delta;
 	t_cord	x;
+	// t_cord	ray_ori;
+	// t_cord	ray_cord;
 }	t_calc;
 
 typedef struct s_rgb
@@ -57,10 +60,12 @@ typedef struct s_obj
 	t_type			type;
 	t_cord			cord;
 	double			dia;
+	t_cord			dia_xyz;
 	t_cord			ori;
 	double			higt;
 	t_rgb			rgb;
 	double			plane_constant;
+	t_bool			chkr;
 	struct s_obj	*next;
 }	t_obj;
 

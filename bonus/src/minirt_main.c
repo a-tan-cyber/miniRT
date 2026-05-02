@@ -25,8 +25,10 @@ int	main(int argc, char **argv)
 	data = NULL;
 	if (initialise_structs(&obj, &data) != 0)
 		return (free_rt(&obj, &data), 3);
+	printf("initialise_structs complete\n"); //
 	if (initialise_rt(argv[1], &obj, &data) != 0)
 		return (free_rt(&obj, &data), 4);
+	printf("initialise_rt complete\n"); //
 	if (initialise_minilibx(&data) != 0)
 		return (free_rt(&obj, &data), 5);
 	if (calc_pixel(&obj, &data) != 0)

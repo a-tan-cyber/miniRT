@@ -56,7 +56,10 @@ t_cord	vec3_cross(t_cord f, t_cord up);
 t_cord	vec3_normalise(t_cord ori);
 t_cord	vec3_sub(t_cord c1, t_cord c2);
 t_cord	vec3_mul(t_cord x, double times);
+t_cord	vec3_mul_vec3(t_cord x, t_cord y);
 t_cord	vec3_add(t_cord x, t_cord y);
+t_cord	vec3_div(t_cord x, double times);
+t_cord	vec3_div_vec3(t_cord x, t_cord y);
 double	vec3_len_sq(t_cord p, t_cord cord);
 
 double	ft_degree2radian(int degree);
@@ -80,6 +83,7 @@ double	ft_solve_quadratic_abd_near(double a, double b, double delta);
 double	ft_solve_quadratic_abd_far(double a, double b, double delta);
 double	calc_intersect_sp(t_ray *ray, t_obj *obj);
 double	calc_intersect_pl(t_ray *ray, t_obj *obj);
+double	calc_intersect_el(t_ray *ray, t_obj *obj);
 
 double	calc_intersect_cy_tube_height(double t, t_calc calc);
 void	initialise_t_calc(t_calc *calc);
@@ -125,6 +129,7 @@ int		ins_rgb(t_rgb *rgb, const char *r, const char *g, const char *b);
 int		add_rt_data_d_l(const char **split_arr, t_ligt *ligt);
 int		add_rt_data_d(const char **split_arr, t_data **data);
 int		add_rt_data_s_sp(const char **split_arr, t_obj *new);
+int		add_rt_data_s_el(const char **split_arr, t_obj *new);
 int		add_rt_data_s_pl(const char **split_arr, t_obj *new);
 int		val_ins_rgb(const char *string, t_obj *new);
 int		add_rt_data_s_cy(const char **split_arr, t_obj *new);
