@@ -12,7 +12,7 @@
 
 #include "minirt.h"
 
-t_rgb	rgb_amp_capped(t_rgb rgb, double ratio)
+t_rgb	rgb_amp_cap(t_rgb rgb, double ratio)
 {
 	rgb.r = (double)rgb.r * ratio;
 	rgb.r = ft_min(rgb.r, 255);
@@ -42,14 +42,14 @@ t_rgb	rgb_mul(t_rgb l1, t_rgb l2, int bound)
 	return (l1);
 }
 
-t_rgb	calc_pixel_l_diffused(double factor, t_obj *cur, t_data *data)
+t_rgb	calc_pixel_l_diffused(t_rgb rgb, double factor, t_data *data)
 {
 	t_rgb	light;
 
 	initialise_t_rgb(&light);
-	light = rgb_amp_capped(data->ligt.rgb, data->ligt.bright);
-	light = rgb_amp_capped(light, factor);
-	light = rgb_mul(cur->rgb, light, 255);
+	light = rgb_amp_cap(data->ligt.rgb, data->ligt.bright);
+	light = rgb_amp_cap(light, factor);
+	light = rgb_mul(rgb, light, 255);
 	return (light);
 }
 

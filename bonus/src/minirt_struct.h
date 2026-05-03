@@ -43,6 +43,8 @@ typedef struct s_calc
 	double	sto1;
 	double	sto2;
 	double	delta;
+	double	u;
+	double	v;
 	t_cord	x;
 	// t_cord	ray_ori;
 	// t_cord	ray_cord;
@@ -133,6 +135,7 @@ typedef struct s_box
 	t_cord	p;
 	t_cord	sur_vec;
 	t_cord	s2l_vec;
+	t_rgb	s;
 	double	ln_dotp;
 }	t_box;
 

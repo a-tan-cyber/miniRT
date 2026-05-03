@@ -93,8 +93,8 @@ double	calc_pixel_l_sdwvslit(t_box box, t_obj *obj, t_data *data)
 // 	t_rgb	light;
 
 // 	initialise_t_rgb(&light);
-// 	light = rgb_amp_capped(data->ligt.rgb, data->ligt.bright);
-// 	light = rgb_amp_capped(light, factor);
+// 	light = rgb_amp_cap(data->ligt.rgb, data->ligt.bright);
+// 	light = rgb_amp_cap(light, factor);
 // 	light = rgb_mul(cur->rgb, light, 255);
 // 	return (light);
 // }
@@ -109,7 +109,7 @@ t_rgb	calc_pixel_l_specular(t_box box, t_data *data)
 	double	res;
 
 	initialise_t_rgb(&light);
-	light = rgb_amp_capped(data->ligt.rgb, data->ligt.bright);
+	light = rgb_amp_cap(data->ligt.rgb, data->ligt.bright);
 	s2c_vec = vec3_2pvec_norm(data->cam.cord, box.p);
 	initialise_t_cord(&rfl_vec);
 	rfl_vec = vec3_mul(box.sur_vec, box.ln_dotp * 2.0);
@@ -118,8 +118,76 @@ t_rgb	calc_pixel_l_specular(t_box box, t_data *data)
 	res = ft_max_dbl(0, res);
 	res = pow64_dbl(res);
 	res *= SPECULAR_COEFFICIENT;
-	light = rgb_amp_capped(light, res);
+	light = rgb_amp_cap(light, res);
 	return (light);
+}
+
+t_rgb	cre_t_rgb(int r, int g, int b)
+{
+	t_rgb	res;
+
+	res.r = r;
+	res.g = g;
+	res.b = b;
+	return (res);
+}
+
+void	calc_chkr_uv_pl(t_calc *calc, t_cord p, t_obj *cur)
+{
+
+	// calc->u = p.x;
+	// calc->v = p.z;
+}
+void	calc_chkr_uv_sp(t_calc *calc, t_cord p, t_obj *cur)
+{
+
+}
+void	calc_chkr_uv_cy(t_calc *calc, t_cord p, t_obj *cur)
+{
+
+}
+
+void	calc_chkr_uv(t_calc *calc, t_cord p, t_obj *cur)
+{
+	if (cur->type == PL)
+	{
+		calc_chkr_uv_pl(calc, p, cur);
+	}
+	else if (cur->type == SP || cur->type == EL)
+	{
+		calc_chkr_uv_sp(calc, p, cur);
+	}
+	else if (cur->type == CY)
+	{
+		calc_chkr_uv_cy(calc, p, cur);
+	}
+	else
+		ft_puterr("calc_ckr_uv: cur->type = unknown shape");
+}
+
+#define CHKR_SCALE 2.0
+
+t_rgb	calc_chkr(t_cord p, t_obj *cur)
+{
+	t_calc	calc;
+	int		sum;
+
+	initialise_t_calc(&calc);
+	calc_chkr_uv(&calc, p, cur);
+	sum = (int) (floor(calc.u * CHKR_SCALE) + floor (calc.v * CHKR_SCALE));
+	if (sum % 2 == 0)
+		return (cre_t_rgb(255, 255, 255));
+	else
+		return (cre_t_rgb(0, 0, 0));
+}
+
+void	initialise_t_box(t_box *box)
+{
+	initialise_t_cord(&box->p);
+	initialise_t_cord(&box->sur_vec);
+	initialise_t_cord(&box->s2l_vec);
+	initialise_t_rgb(&box->s);
+	box->ln_dotp = 0;
 }
 
 t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
@@ -131,18 +199,22 @@ t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
 	initialise_t_rgb(&ambi);
 	if (!ray || !cur || !obj || !data)
 		return (ambi);
-	ambi = rgb_amp_capped(data->ambi.rgb, data->ambi.ratio);
-	ambi = rgb_mul(ambi, cur->rgb, 255);
+	ambi = rgb_amp_cap(data->ambi.rgb, data->ambi.ratio);
+	initialise_t_box(&box);
 	box.p = calc_point(ray);
+	if (cur->chkr == TRUE)
+		box.s = calc_chkr(box.p, cur);
+	else
+		box.s = cur->rgb;
+	ambi = rgb_mul(ambi, box.s, 255);
 	box.sur_vec = calc_surface_normal(box.p, cur, ray);
 	box.s2l_vec = vec3_2pvec_norm(data->ligt.cord, box.p);
 	box.ln_dotp = vec3_dot(box.sur_vec, box.s2l_vec);
 	factor = calc_pixel_l_sdwvslit(box, obj, data);
 	if (factor > 0)
 	{
-		ambi = rgb_add(ambi, calc_pixel_l_diffused(factor, cur, data));
-		ambi = rgb_add(ambi, calc_pixel_l_specular(box, data));
-		ambi = rgb_amp_capped(ambi, 1);
+		ambi = rgb_add(ambi, calc_pixel_l_diffused(box.s, factor, data));
+		ambi = rgb_amp_cap(rgb_add(ambi, calc_pixel_l_specular(box, data)), 1);
 	}
 	return (ambi);
 }

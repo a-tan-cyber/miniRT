@@ -84,7 +84,7 @@ int	main(int argc, char **argv)
 // 	// light.r = data->ambi.ratio * data->ambi.rgb.r;
 // 	// light.g = data->ambi.ratio * data->ambi.rgb.g;
 // 	// light.b = data->ambi.ratio * data->ambi.rgb.b;
-// 	ambi = rgb_amp_capped(data->ambi.rgb, data->ambi.ratio);
+// 	ambi = rgb_amp_cap(data->ambi.rgb, data->ambi.ratio);
 // 	//surface normal
 // 	p = calc_point(ray);
 // 	// sur_vec = vec3_sub(p, obj->cord);
@@ -106,12 +106,12 @@ int	main(int argc, char **argv)
 // 		vec3_sub(p, data->ligt.cord)))
 // 	{
 // 		//add diffuse light
-// 		light = rgb_amp_capped(data->ligt.rgb, data->ligt.bright);
+// 		light = rgb_amp_cap(data->ligt.rgb, data->ligt.bright);
 // 		light = rgb_mix(cur->rgb, light);
 // 		factor = ft_max_dbl(0, factor);
-// 		light = rgb_amp_capped(light, factor);
+// 		light = rgb_amp_cap(light, factor);
 // 		light = rgb3_add(ambi, light);
-// 		rgb_amp_capped(light, -1);
+// 		rgb_amp_cap(light, -1);
 // 		return (light);
 // 	}
 // 	return (ambi);

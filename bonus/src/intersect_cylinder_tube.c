@@ -40,6 +40,8 @@ void	initialise_t_calc(t_calc *calc)
 	calc->sto1 = 0;
 	calc->sto2 = 0;
 	calc->delta = 0;
+	calc->u = 0;
+	calc->v = 0;
 	initialise_t_cord(&calc->x);
 }
 

@@ -102,10 +102,10 @@ double	calc_ray_t(t_ray *ray, t_obj *obj);
 t_obj	*calc_pixel_frt_s(t_ray *ray, t_obj *frt, t_obj *obj);
 t_obj	*calc_pixel_frt(t_ray *ray, t_obj *obj);
 
-t_rgb	rgb_amp_capped(t_rgb rgb, double ratio);
+t_rgb	rgb_amp_cap(t_rgb rgb, double ratio);
 t_rgb	rgb_add(t_rgb l1, t_rgb l2);
 t_rgb	rgb_mul(t_rgb l1, t_rgb l2, int bound);
-t_rgb	calc_pixel_l_diffused(double factor, t_obj *cur, t_data *data);
+t_rgb	calc_pixel_l_diffused(t_rgb rgb, double factor, t_data *data);
 int		conv_rgb2str(char *dest, t_rgb rgb, t_data *data);
 t_cord	calc_point(t_ray *ray);
 double	calc_surface_normal_cy_distance(t_cord p, t_obj *cur);
