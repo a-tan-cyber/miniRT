@@ -66,10 +66,12 @@ void	initialise_t_data(t_data *cur_data)
 	initialise_t_cord(&cur_data->cam.cord);
 	initialise_t_cord(&cur_data->cam.ori);
 	cur_data->cam.fov = -1;
-	cur_data->ligt_loaded = FALSE;
-	initialise_t_cord(&cur_data->ligt.cord);
-	cur_data->ligt.bright = -1;
-	initialise_t_rgb(&cur_data->ligt.rgb);
+	// cur_data->ligt_loaded = FALSE;
+	// initialise_t_cord(&cur_data->ligt.cord);
+	// cur_data->ligt.bright = -1;
+	// initialise_t_rgb(&cur_data->ligt.rgb);
+	// initialise_t_ligt(cur_data->ligt);
+	cur_data->ligt = NULL;
 	cur_data->mlx = NULL;
 	cur_data->win = NULL;
 	cur_data->img = NULL;

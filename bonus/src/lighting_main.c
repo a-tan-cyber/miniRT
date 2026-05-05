@@ -36,7 +36,7 @@ t_cord	vec3_2pvec_norm(t_cord p1, t_cord p2)
 	return (res);
 }
 
-double	calc_pixel_l_sdwvslit(t_box box, t_obj *obj, t_data *data)
+double	calc_pixel_l_sdwvslit(t_box box, t_obj *obj, t_ligt *ligt)
 {
 	t_ray	shadow;
 	t_cord	p;
@@ -55,7 +55,7 @@ double	calc_pixel_l_sdwvslit(t_box box, t_obj *obj, t_data *data)
 	shadow.ori = s2l_vec;
 	calc_pixel_frt(&shadow, obj);
 	if (shadow.t <= EPSILON
-		|| shadow.t * shadow.t > vec3_len_sq(p, data->ligt.cord))
+		|| shadow.t * shadow.t > vec3_len_sq(p, ligt->cord))
 		return (factor);
 	return (0.0);
 }
@@ -101,7 +101,7 @@ double	calc_pixel_l_sdwvslit(t_box box, t_obj *obj, t_data *data)
 #define	SPECULAR_COEFFICIENT 1.5
 
 // reflection vec: $$\vec{R} = 2(\vec{N} \cdot \vec{L})\vec{N} - \vec{L}$$
-t_rgb	calc_pixel_l_specular(t_box box, t_data *data)
+t_rgb	calc_pixel_l_specular(t_box box, t_ligt *ligt, t_data *data)
 {
 	t_cord	rfl_vec;
 	t_cord	s2c_vec;
@@ -109,7 +109,7 @@ t_rgb	calc_pixel_l_specular(t_box box, t_data *data)
 	double	res;
 
 	initialise_t_rgb(&light);
-	light = rgb_amp_cap(data->ligt.rgb, data->ligt.bright);
+	light = rgb_amp_cap(ligt->rgb, ligt->bright);
 	s2c_vec = vec3_2pvec_norm(data->cam.cord, box.p);
 	initialise_t_cord(&rfl_vec);
 	rfl_vec = vec3_mul(box.sur_vec, box.ln_dotp * 2.0);
@@ -277,14 +277,49 @@ void	initialise_t_box(t_box *box)
 	box->ln_dotp = 0;
 }
 
-t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
+// t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_ligt *ligt, t_data *data)
+// {
+// 	t_rgb	ambi;
+// 	double	factor;
+// 	t_box	box;
+
+// 	initialise_t_rgb(&ambi);
+// 	if (!ray || !cur || !ligt || !data)
+// 		return (ambi);
+// 	ambi = rgb_amp_cap(data->ambi.rgb, data->ambi.ratio);
+// 	initialise_t_box(&box);
+// 	box.p = calc_point(ray);
+// 	if (cur->chkr == TRUE)
+// 		box.s = calc_chkr(ray, box.p, cur);
+// 	else
+// 		box.s = cur->rgb;
+// 	ambi = rgb_mul(ambi, box.s, 255);
+// 	box.sur_vec = calc_surface_normal(box.p, cur, ray);
+// 	box.ln_dotp = vec3_dot(box.sur_vec, box.s2l_vec);
+// 	box.s2l_vec = vec3_2pvec_norm(ligt->cord, box.p);
+	
+// 	t_ligt	*cur_ligt = ligt;
+// 	while (cur_ligt)
+// 	{
+// 		factor = calc_pixel_l_sdwvslit(box, data->obj_head, ligt);
+// 		if (factor > 0)
+// 		{
+// 			ambi = rgb_add(ambi, calc_pixel_l_diffused(box.s, factor, ligt));
+// 			ambi = rgb_amp_cap(rgb_add(ambi, calc_pixel_l_specular(box, ligt, data)), 1);
+// 		}
+// 		cur_ligt = cur_ligt->next;
+// 	}
+// 	return (ambi);
+// }
+
+t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_ligt *ligt, t_data *data)
 {
 	t_rgb	ambi;
 	double	factor;
 	t_box	box;
 
 	initialise_t_rgb(&ambi);
-	if (!ray || !cur || !obj || !data)
+	if (!ray || !cur || !ligt || !data)
 		return (ambi);
 	ambi = rgb_amp_cap(data->ambi.rgb, data->ambi.ratio);
 	initialise_t_box(&box);
@@ -295,13 +330,19 @@ t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_obj *obj, t_data *data)
 		box.s = cur->rgb;
 	ambi = rgb_mul(ambi, box.s, 255);
 	box.sur_vec = calc_surface_normal(box.p, cur, ray);
-	box.s2l_vec = vec3_2pvec_norm(data->ligt.cord, box.p);
-	box.ln_dotp = vec3_dot(box.sur_vec, box.s2l_vec);
-	factor = calc_pixel_l_sdwvslit(box, obj, data);
-	if (factor > 0)
+	
+	t_ligt	*cur_ligt = ligt;
+	while (cur_ligt)
 	{
-		ambi = rgb_add(ambi, calc_pixel_l_diffused(box.s, factor, data));
-		ambi = rgb_amp_cap(rgb_add(ambi, calc_pixel_l_specular(box, data)), 1);
+		box.s2l_vec = vec3_2pvec_norm(cur_ligt->cord, box.p);
+		box.ln_dotp = vec3_dot(box.sur_vec, box.s2l_vec);
+		factor = calc_pixel_l_sdwvslit(box, data->obj_head, cur_ligt);
+		if (factor > 0)
+		{
+			ambi = rgb_add(ambi, calc_pixel_l_diffused(box.s, factor, cur_ligt));
+			ambi = rgb_amp_cap(rgb_add(ambi, calc_pixel_l_specular(box, cur_ligt, data)), 1);
+		}
+		cur_ligt = cur_ligt->next;
 	}
 	return (ambi);
 }
@@ -416,8 +457,8 @@ void	*calc_pixel_thrd_run(void *param)
 			initialise_t_ray(&ray);
 			calc_ray_screen2obj(&ray, x, y, thrd->data);
 			frt = calc_pixel_frt(&ray, thrd->obj);
-			calc_pixel_a(y, x, calc_pixel_l(&ray, frt, thrd->obj, thrd->data),
-							thrd->data);
+			calc_pixel_a(y, x, calc_pixel_l(&ray, frt, thrd->data->ligt, thrd->data),
+				thrd->data);
 			x++;
 		}
 		y++;

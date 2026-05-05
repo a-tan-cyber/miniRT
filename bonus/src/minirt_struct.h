@@ -86,9 +86,10 @@ typedef struct s_cam
 
 typedef struct s_ligt
 {
-	t_cord	cord;
-	double	bright;
-	t_rgb	rgb;
+	t_cord			cord;
+	double			bright;
+	t_rgb			rgb;
+	struct s_ligt	*next;
 }	t_ligt;
 
 typedef struct s_data
@@ -97,8 +98,8 @@ typedef struct s_data
 	t_ambi	ambi;
 	t_bool	cam_loaded;
 	t_cam	cam;
-	t_bool	ligt_loaded;
-	t_ligt	ligt;
+	// t_bool	ligt_loaded;
+	t_ligt	*ligt;
 	void	*mlx;
 	void	*win;
 	void	*img;
