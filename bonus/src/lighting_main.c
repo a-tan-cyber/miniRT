@@ -142,6 +142,8 @@ t_cord	cre_t_cord(double x, double y, double z)
 	return (res);
 }
 
+#define CHKR_SCALE 20.0
+
 void	calc_chkr_uv_pl(t_calc *calc, t_cord p, t_obj *cur)
 {
 	t_cord	vec_caterpillar_u;
@@ -151,17 +153,31 @@ void	calc_chkr_uv_pl(t_calc *calc, t_cord p, t_obj *cur)
 
 	if (cur->ori.y == 1 || cur->ori.y == -1)
 	{
-		calc->u = p.x - cur->cord.x;
-		calc->v = p.z - cur->cord.z;
-		return ;
+		calc->u = (p.x - cur->cord.x);
+		calc->v = (p.z - cur->cord.z);
 	}
-	up = cre_t_cord(0.0, 1.0, 0.0);
-	vec_caterpillar_u = vec3_cross(cur->ori, up);
-	vec_caterpillar_u = vec3_normalise(vec_caterpillar_u);
-	vec_caterpillar_v = vec3_cross(vec_caterpillar_u, cur->ori);
-	local_p = vec3_sub(p, cur->cord);
-	calc->u = vec3_dot(vec_caterpillar_u, local_p);
-	calc->v = vec3_dot(vec_caterpillar_v, local_p);
+	else
+	{
+		up = cre_t_cord(0.0, 1.0, 0.0);
+		vec_caterpillar_u = vec3_cross(cur->ori, up);
+		vec_caterpillar_u = vec3_normalise(vec_caterpillar_u);
+		vec_caterpillar_v = vec3_cross(vec_caterpillar_u, cur->ori);
+		local_p = vec3_sub(p, cur->cord);
+		calc->u = vec3_dot(vec_caterpillar_u, local_p);
+		calc->v = vec3_dot(vec_caterpillar_v, local_p);
+	}
+	calc->u =  calc->u / CHKR_SCALE / 2;
+	calc->v =  calc->v / CHKR_SCALE / 2;
+}
+
+double	bound_limit_dbl(double val, double min, double max)
+{
+	if (val < min)
+		return (min);
+	else if (val > max)
+		return (max);
+	else
+		return (val);
 }
 
 void	calc_chkr_uv_sp(t_calc *calc, t_cord p, t_obj *cur)
@@ -183,10 +199,7 @@ void	calc_chkr_uv_sp(t_calc *calc, t_cord p, t_obj *cur)
 	longtitude = atan2(local_p.x, local_p.z);
 	longtitude = (longtitude + RT_PI) / (2.0 * RT_PI);
 	val = local_p.y / r;
-	if (val > 1.0)
-		val = 1.0;
-	else if (val < -1.0)
-		val = -1.0;
+	val = bound_limit_dbl(val, -1.0, 1.0);
 	latitude = asin(val);
 	latitude = (latitude + RT_PI_HALF) / RT_PI;
 	calc->u = longtitude;
@@ -195,18 +208,30 @@ void	calc_chkr_uv_sp(t_calc *calc, t_cord p, t_obj *cur)
 
 void	calc_chkr_uv_cy(t_calc *calc, t_cord p, t_ray *ray, t_obj *cur)
 {
+	t_cord	vec_caterpillar_u;
 	t_cord	vec_caterpillar_v;
-	double	longtitude;
-	double	latitude;
 	t_cord	local_p;
+	t_cord	up;
 
 	if (ray->lhit == FLAT_TOP || ray->lhit == FLAT_BOT)
 		calc_chkr_uv_pl(calc, p, cur);
 	else if (ray->lhit == TUBE)
 	{
 		local_p = vec3_sub(p, cur->cord);
-		longtitude = 
-		// latitude = vec_caterpillar_v()
+		if (cur->ori.y == 1 || cur->ori.y == -1)
+		{
+			calc->u = atan2(local_p.x, local_p.z);
+			calc->u = (calc->u + RT_PI) / (2.0 * RT_PI);
+			calc->v = (p.y - cur->cord.y) / cur->higt;
+			return ;
+		}
+		up = cre_t_cord(0.0, 1.0, 0.0);
+		vec_caterpillar_u = vec3_normalise(vec3_cross(cur->ori, up));
+		vec_caterpillar_v = vec3_cross(cur->ori, vec_caterpillar_u);
+		calc->u = atan2(vec3_dot(vec_caterpillar_u, local_p),
+						vec3_dot(vec_caterpillar_v, local_p));
+		calc->u = (calc->u + RT_PI) / (2.0 * RT_PI);
+		calc->v = vec3_dot(cur->ori, local_p) / cur->higt;
 	}
 }
 
@@ -228,7 +253,6 @@ void	calc_chkr_uv(t_calc *calc, t_cord p, t_ray *ray, t_obj *cur)
 		ft_puterr("calc_ckr_uv: cur->type = unknown shape");
 }
 
-#define CHKR_SCALE 2.0
 
 t_rgb	calc_chkr(t_ray *ray, t_cord p, t_obj *cur)
 {

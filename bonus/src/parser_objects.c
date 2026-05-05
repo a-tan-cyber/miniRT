@@ -99,7 +99,7 @@ int	add_rt_data_s_sp(const char **split_arr, t_obj *new)
 {
 	char	**arr;
 
-	if (ft_arrlen(split_arr) != 4)
+	if (ft_arrlen(split_arr) != 5)
 		return (ft_puterr("sphere wrong number of fields"), -2);
 	new->type = SP;
 	arr = split_3_float(split_arr[1], ",");
@@ -116,6 +116,8 @@ int	add_rt_data_s_sp(const char **split_arr, t_obj *new)
 		return (ft_puterr("obj.rgb error"), 4);
 	if (ins_rgb(&new->rgb, arr[0], arr[1], arr[2]))
 		return (free_arr(arr), -4);
+	if (ins_chkr(&new->chkr, split_arr[4]))
+		return (free_arr(arr), -6);
 	return (free_arr(arr), 0);
 }
 
@@ -132,7 +134,7 @@ int	add_rt_data_s_pl(const char **split_arr, t_obj *new)
 {
 	char	**arr;
 
-	if (ft_arrlen(split_arr) != 4)
+	if (ft_arrlen(split_arr) != 5)
 		return (ft_puterr("plane wrong number of fields"), -2);
 	new->type = PL;
 	arr = split_3_float(split_arr[1], ",");
@@ -142,17 +144,17 @@ int	add_rt_data_s_pl(const char **split_arr, t_obj *new)
 		return (free_arr(arr), -3);
 	free_arr(arr);
 	arr = split_3_double_range(split_arr[2], ",", -1, 1);
-	if (!arr)
-		return (ft_puterr("obj.ori error"), 2);
-	if (ins_vec3(&new->ori, arr[0], arr[1], arr[2])
+	if (!arr || ins_vec3(&new->ori, arr[0], arr[1], arr[2])
 		|| chk_normalised(new->ori))
-		return (ft_puterr("obj.ori error"), free_arr(arr), -3);
+		return (ft_puterr("obj.ori error"), free_arr(arr), 2);
 	free_arr(arr);
 	arr = split_3_int_range(split_arr[3], ",", "0", "255");
 	if (!arr)
 		return (ft_puterr("obj.rgb error"), 4);
 	if (ins_rgb(&new->rgb, arr[0], arr[1], arr[2]))
 		return (free_arr(arr), -4);
+	if (ins_chkr(&new->chkr, split_arr[4]))
+		return (free_arr(arr), -6);
 	new->plane_constant = vec3_dot(new->cord, new->ori);
 	return (free_arr(arr), 0);
 }
@@ -185,7 +187,7 @@ int	add_rt_data_s_cy(const char **split_arr, t_obj *new)
 {
 	char	**arr;
 
-	if (ft_arrlen(split_arr) != 6)
+	if (ft_arrlen(split_arr) != 7)
 		return (ft_puterr("cylinder wrong number of fields"), -2);
 	new->type = CY;
 	arr = split_3_float(split_arr[1], ",");
@@ -195,15 +197,16 @@ int	add_rt_data_s_cy(const char **split_arr, t_obj *new)
 		return (free_arr(arr), -3);
 	free_arr(arr);
 	arr = split_3_double_range(split_arr[2], ",", -1, 1);
-	if (!arr)
-		return (ft_puterr("cylinder obj.ori error"), 2);
-	if (ins_vec3(&new->ori, arr[0], arr[1], arr[2]) || chk_normalised(new->ori))
+	if (!arr || ins_vec3(&new->ori, arr[0], arr[1], arr[2])
+		|| chk_normalised(new->ori))
 		return (ft_puterr("cylinder obj.ori error"), free_arr(arr), -3);
 	free_arr(arr);
 	if (ft_atof(split_arr[3]) <= 0 || ft_atof(split_arr[4]) <= 0)
 		return (ft_puterr("cylinder diameter <= 0 or height <= 0"), 3);
 	new->dia = ft_atod(split_arr[3]);
 	new->higt = ft_atod(split_arr[4]);
+	if (ins_chkr(&new->chkr, split_arr[6]))
+		return (free_arr(arr), -6);
 	if (val_ins_rgb(split_arr[5], new) != 0)
 		return (ft_puterr("add_rt_data_s_cy: cylinder failed to ins rgb"), 4);
 	return (0);
