@@ -37,6 +37,7 @@ void	free_t_data(t_data *data)
 		mlx_destroy_display(data->mlx);
 		ft_sfree((void **)&data->mlx);
 	}
+	// free data->ligt
 	ft_sfree((void **)&data);
 }
 

@@ -142,7 +142,7 @@ t_cord	cre_t_cord(double x, double y, double z)
 	return (res);
 }
 
-#define CHKR_SCALE 20.0
+#define CHKR_SCALE 0.5
 
 void	calc_chkr_uv_pl(t_calc *calc, t_cord p, t_obj *cur)
 {
@@ -166,8 +166,8 @@ void	calc_chkr_uv_pl(t_calc *calc, t_cord p, t_obj *cur)
 		calc->u = vec3_dot(vec_caterpillar_u, local_p);
 		calc->v = vec3_dot(vec_caterpillar_v, local_p);
 	}
-	calc->u =  calc->u / CHKR_SCALE / 2;
-	calc->v =  calc->v / CHKR_SCALE / 2;
+	calc->u = calc->u;
+	calc->v = calc->v;
 }
 
 double	bound_limit_dbl(double val, double min, double max)
@@ -202,8 +202,16 @@ void	calc_chkr_uv_sp(t_calc *calc, t_cord p, t_obj *cur)
 	val = bound_limit_dbl(val, -1.0, 1.0);
 	latitude = asin(val);
 	latitude = (latitude + RT_PI_HALF) / RT_PI;
-	calc->u = longtitude;
-	calc->v = latitude;
+	if (cur->type == SP)
+	{
+		calc->u = longtitude * 2 * r * RT_PI;
+		calc->v = latitude * r * RT_PI;
+	}
+	else if (cur->type == EL)
+	{
+		calc->u = longtitude * 2 * cur->dia_xyz.x * RT_PI / 2;
+		calc->v = latitude * cur->dia_xyz.z * RT_PI / 2;
+	}
 }
 
 void	calc_chkr_uv_cy(t_calc *calc, t_cord p, t_ray *ray, t_obj *cur)
@@ -222,16 +230,19 @@ void	calc_chkr_uv_cy(t_calc *calc, t_cord p, t_ray *ray, t_obj *cur)
 		{
 			calc->u = atan2(local_p.x, local_p.z);
 			calc->u = (calc->u + RT_PI) / (2.0 * RT_PI);
-			calc->v = (p.y - cur->cord.y) / cur->higt;
+			calc->u = calc->u * cur->dia * RT_PI;
+			calc->v = (p.y - cur->cord.y);
 			return ;
 		}
 		up = cre_t_cord(0.0, 1.0, 0.0);
 		vec_caterpillar_u = vec3_normalise(vec3_cross(cur->ori, up));
 		vec_caterpillar_v = vec3_cross(cur->ori, vec_caterpillar_u);
-		calc->u = atan2(vec3_dot(vec_caterpillar_u, local_p),
-						vec3_dot(vec_caterpillar_v, local_p));
+		calc->u = atan2(vec3_dot(vec_caterpillar_v, local_p),
+						vec3_dot(vec_caterpillar_u, local_p));
 		calc->u = (calc->u + RT_PI) / (2.0 * RT_PI);
-		calc->v = vec3_dot(cur->ori, local_p) / cur->higt;
+		// calc->v = vec3_dot(cur->ori, local_p) / cur->higt;
+		calc->u = calc->u * cur->dia * RT_PI;
+		calc->v = vec3_dot(cur->ori, local_p);
 	}
 }
 
@@ -261,6 +272,7 @@ t_rgb	calc_chkr(t_ray *ray, t_cord p, t_obj *cur)
 
 	initialise_t_calc(&calc);
 	calc_chkr_uv(&calc, p, ray, cur);
+	// sum = (int) (floor(calc.u) + floor(calc.v));
 	sum = (int) (floor(calc.u * CHKR_SCALE) + floor (calc.v * CHKR_SCALE));
 	if (sum % 2 == 0)
 		return (cre_t_rgb(255, 255, 255));
@@ -315,7 +327,6 @@ void	initialise_t_box(t_box *box)
 t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_ligt *ligt, t_data *data)
 {
 	t_rgb	ambi;
-	double	factor;
 	t_box	box;
 
 	initialise_t_rgb(&ambi);
@@ -331,6 +342,8 @@ t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_ligt *ligt, t_data *data)
 	ambi = rgb_mul(ambi, box.s, 255);
 	box.sur_vec = calc_surface_normal(box.p, cur, ray);
 	
+	// ambi = calc_pixel_l_each(ambi, box, ligt, data);
+	double	factor;
 	t_ligt	*cur_ligt = ligt;
 	while (cur_ligt)
 	{
