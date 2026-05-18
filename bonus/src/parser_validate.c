@@ -63,7 +63,7 @@ int	validate_required_data(t_data *data)
 		return (ft_puterr("missing ambient lighting"), 2);
 	if (data->cam_loaded == FALSE)
 		return (ft_puterr("missing camera"), 3);
-	// if (data->ligt_loaded == FALSE)
-	// 	return (ft_puterr("missing light"), 4);
+	if (data->ligt == NULL)
+		return (ft_puterr("missing light"), 4);
 	return (0);
 }

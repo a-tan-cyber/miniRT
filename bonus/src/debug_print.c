@@ -11,7 +11,16 @@
 /* ************************************************************************** */
 
 #include "minirt.h"
+#include <stddef.h>
 #include <unistd.h>
+
+static void	debug_write(int fd, const void *buf, size_t len)
+{
+	ssize_t	bytes;
+
+	bytes = write(fd, buf, len);
+	(void)bytes;
+}
 
 static void	debug_put_str(char *s)
 {
@@ -20,7 +29,7 @@ static void	debug_put_str(char *s)
 	i = 0;
 	while (s[i])
 	{
-		write(1, &s[i], 1);
+		debug_write(1, &s[i], 1);
 		i++;
 	}
 }
@@ -32,7 +41,7 @@ static void	debug_put_long(long n)
 	if (n >= 10)
 		debug_put_long(n / 10);
 	c = (n % 10) + '0';
-	write(1, &c, 1);
+	debug_write(1, &c, 1);
 }
 
 static void	debug_put_double(double n)
@@ -42,7 +51,7 @@ static void	debug_put_double(double n)
 
 	if (n < 0)
 	{
-		write(1, "-", 1);
+		debug_write(1, "-", 1);
 		n = -n;
 	}
 	i_part = (long)n;
@@ -53,11 +62,11 @@ static void	debug_put_double(double n)
 		f_part = 0;
 	}
 	debug_put_long(i_part);
-	write(1, ".", 1);
+	debug_write(1, ".", 1);
 	if (f_part < 100)
-		write(1, "0", 1);
+		debug_write(1, "0", 1);
 	if (f_part < 10)
-		write(1, "0", 1);
+		debug_write(1, "0", 1);
 	debug_put_long(f_part);
 }
 

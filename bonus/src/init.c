@@ -40,6 +40,7 @@ void	initialise_t_obj(t_obj **obj)
 	initialise_t_rgb(&cur_obj->rgb);
 	cur_obj->plane_constant = 0;
 	cur_obj->chkr = FALSE;
+	cur_obj->bump = EMPTY;
 	cur_obj->next = NULL;
 }
 

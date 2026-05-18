@@ -24,6 +24,18 @@ void	free_t_obj_all(t_obj *head)
 	}
 }
 
+void	free_t_ligt_all(t_ligt *head)
+{
+	t_ligt	*cur;
+
+	while (head)
+	{
+		cur = head;
+		head = head->next;
+		ft_sfree((void **)&cur);
+	}
+}
+
 void	free_t_data(t_data *data)
 {
 	if (!data)
@@ -37,7 +49,7 @@ void	free_t_data(t_data *data)
 		mlx_destroy_display(data->mlx);
 		ft_sfree((void **)&data->mlx);
 	}
-	// free data->ligt
+	free_t_ligt_all(data->ligt);
 	ft_sfree((void **)&data);
 }
 

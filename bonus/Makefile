@@ -1,7 +1,6 @@
 NAME = miniRT_bonus
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
-SPEED = -o3 -ffast-math -march=native
 
 LIBFT_DIR = libft
 LIBFT = $(LIBFT_DIR)/libft.a

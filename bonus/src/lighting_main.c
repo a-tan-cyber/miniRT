@@ -6,7 +6,7 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 20:57:29 by amtan             #+#    #+#             */
-/*   Updated: 2026/04/29 20:58:14 by amtan            ###   ########.fr       */
+/*   Updated: 2026/05/18 20:33:07 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -350,61 +350,169 @@ void	initialise_t_box(t_box *box)
 // 	return (res);
 // }
 
-t_cord	vec3_floor(p);
-t_cord	vec3_add_xyz(base_corner, 1, 0, 0);
-
-double	perlin_noise_each_corner(t_cord corner, t_cord p)
+double	perlin_fade(double t)
 {
-	t_cord	p2c_vec;
-	t_cord	rdm_vec;
-
-	p2c_vec = vec3_sub(p, corner);
-	rdm_vec = perlin_noise_rand_vec(corner);
-	return (vec3_dot(p2c_vec, rdm_vec));
+	return (t * t * t * (t * (t * 6.0 - 15.0) + 10.0));
 }
+
+double	perlin_lerp(double t, double a, double b)
+{
+	return (a + t * (b - a));
+}
+
+int	perlin_hash(int x, int y, int z)
+{
+	unsigned int	hash;
+
+	hash = (unsigned int)x * 374761393u;
+	hash = hash + (unsigned int)y * 668265263u;
+	hash = hash + (unsigned int)z * 2246822519u;
+	hash = (hash ^ (hash >> 13u)) * 1274126177u;
+	return ((int)(hash & 15u));
+}
+
+double	perlin_grad(int hash, double x, double y, double z)
+{
+	double	u;
+	double	v;
+	double	res;
+	int		h;
+
+	h = hash & 15;
+	if (h < 8)
+		u = x;
+	else
+		u = y;
+	if (h < 4)
+		v = y;
+	else if (h == 12 || h == 14)
+		v = x;
+	else
+		v = z;
+	res = 0.0;
+	if ((h & 1) == 0)
+		res = res + u;
+	else
+		res = res - u;
+	if ((h & 2) == 0)
+		res = res + v;
+	else
+		res = res - v;
+	return (res);
+}
+
+double	perlin_corner(int x, int y, int z, t_cord dist)
+{
+	return (perlin_grad(perlin_hash(x, y, z), dist.x, dist.y, dist.z));
+}
+
 double	perlin_noise(t_cord p)
 {
-	double	all_corners[8];
-	t_cord	base_corner;
-	t_cord	corner;
+	int		x;
+	int		y;
+	int		z;
+	t_cord	pos;
+	t_cord	fade;
+	double	x_mix[4];
+	double	y_mix[2];
 
-	res = 0;
-	//bottom back left
-	base_corner = vec3_floor(p);
-	all_corners[0] = perlin_noise_each_corner(base_corner, p);
-	//bottom back right
-	corner = vec3_add_xyz(base_corner, 1, 0, 0);
-	all_corners[1] = perlin_noise_each_corner(corner, p);
-	// ... for 8 corners
-	t_cord	fractional_dist = vec3_sub(p, base_corner);
-	// fade function based on position from base_corner
-	// blend value linear interpolation
+	pos = cre_t_cord(p.x * 0.25, p.y * 0.25, p.z * 0.25);
+	x = (int)floor(pos.x);
+	y = (int)floor(pos.y);
+	z = (int)floor(pos.z);
+	pos = cre_t_cord(pos.x - floor(pos.x), pos.y - floor(pos.y),
+			pos.z - floor(pos.z));
+	fade = cre_t_cord(perlin_fade(pos.x), perlin_fade(pos.y),
+			perlin_fade(pos.z));
+	x_mix[0] = perlin_lerp(fade.x, perlin_corner(x, y, z, pos),
+			perlin_corner(x + 1, y, z,
+				cre_t_cord(pos.x - 1.0, pos.y, pos.z)));
+	x_mix[1] = perlin_lerp(fade.x,
+			perlin_corner(x, y + 1, z,
+				cre_t_cord(pos.x, pos.y - 1.0, pos.z)),
+			perlin_corner(x + 1, y + 1, z,
+				cre_t_cord(pos.x - 1.0, pos.y - 1.0, pos.z)));
+	x_mix[2] = perlin_lerp(fade.x,
+			perlin_corner(x, y, z + 1,
+				cre_t_cord(pos.x, pos.y, pos.z - 1.0)),
+			perlin_corner(x + 1, y, z + 1,
+				cre_t_cord(pos.x - 1.0, pos.y, pos.z - 1.0)));
+	x_mix[3] = perlin_lerp(fade.x,
+			perlin_corner(x, y + 1, z + 1,
+				cre_t_cord(pos.x, pos.y - 1.0, pos.z - 1.0)),
+			perlin_corner(x + 1, y + 1, z + 1,
+				cre_t_cord(pos.x - 1.0, pos.y - 1.0, pos.z - 1.0)));
+	y_mix[0] = perlin_lerp(fade.y, x_mix[0], x_mix[1]);
+	y_mix[1] = perlin_lerp(fade.y, x_mix[2], x_mix[3]);
+	return (perlin_lerp(fade.z, y_mix[0], y_mix[1]));
+}
+
+#define BUMP_EPS 0.0006
+#define BUMP_STRENGTH 0.05
+#define SINE_BUMP_FREQ 3.20
+#define PERLIN_BUMP_FREQ 4.00
+
+double	calc_bump_height(t_cord p, t_bump bump)
+{
+	double	wave;
+
+	if (bump == SINE)
+	{
+		wave = p.y * SINE_BUMP_FREQ;
+		wave = wave + sin(p.x * 0.55) * 0.75;
+		return (sin(wave));
+	}
+	if (bump == PERLIN)
+		return (perlin_noise(vec3_mul(p, PERLIN_BUMP_FREQ)));
+	return (0.0);
+}
+
+t_cord	calc_bump_tangent(t_cord n)
+{
+	t_cord	axis;
+	t_cord	tangent;
+
+	axis = cre_t_cord(0.0, 1.0, 0.0);
+	if (fabs(n.y) > 0.9)
+		axis = cre_t_cord(1.0, 0.0, 0.0);
+	tangent = vec3_cross(axis, n);
+	return (vec3_normalise(tangent));
+}
+
+t_cord	calc_bump_sample_point(t_cord p, t_cord tangent, double step)
+{
+	return (vec3_add(p, vec3_mul(tangent, step)));
 }
 
 t_cord	calc_pixel_l_each_bump_deviation(t_cord p, t_cord sur_vec, t_obj *cur)
 {
 	t_cord	res;
-	double	tilt;
-	t_cord	up;
-	t_cord	dir;
+	t_cord	tangent_u;
+	t_cord	tangent_v;
+	double	du;
+	double	dv;
 
 	res = vec3_mul(sur_vec, 1);
 	if (cur->bump == EMPTY)
 		return (res);
-	up = calc_vector_up(cur->ori);
-	dir = vec3_cross(up, sur_vec);
-	if (cur->bump == SINE)
-	{
-		tilt = sin(p.x * p.y);
-	}
-	else if (cur->bump == PERLIN)
-	{
-		tilt = perlin_noise(p);
-	}
-	dir = vec3_mul(dir, tilt);
-	res = vec3_add(res, dir);
-	res = vec3_normalise(res);
-	return (res);
+	if (cur->bump != SINE && cur->bump != PERLIN)
+		return (res);
+	p = vec3_sub(p, cur->cord);
+	tangent_u = calc_bump_tangent(sur_vec);
+	tangent_v = vec3_normalise(vec3_cross(sur_vec, tangent_u));
+	du = calc_bump_height(calc_bump_sample_point(p, tangent_u, BUMP_EPS),
+			cur->bump);
+	du = du - calc_bump_height(calc_bump_sample_point(p, tangent_u, -BUMP_EPS),
+			cur->bump);
+	du = du / (2.0 * BUMP_EPS);
+	dv = calc_bump_height(calc_bump_sample_point(p, tangent_v, BUMP_EPS),
+			cur->bump);
+	dv = dv - calc_bump_height(calc_bump_sample_point(p, tangent_v, -BUMP_EPS),
+			cur->bump);
+	dv = dv / (2.0 * BUMP_EPS);
+	res = vec3_sub(res, vec3_mul(tangent_u, du * BUMP_STRENGTH));
+	res = vec3_sub(res, vec3_mul(tangent_v, dv * BUMP_STRENGTH));
+	return (vec3_normalise(res));
 }
 
 t_rgb	calc_pixel_l_each(t_rgb ambi, t_box box, t_obj *cur, t_data *data)
@@ -419,7 +527,8 @@ t_rgb	calc_pixel_l_each(t_rgb ambi, t_box box, t_obj *cur, t_data *data)
 	{
 		box.s2l_vec = vec3_2pvec_norm(cur_ligt->cord, box.p);
 		bump_vec = calc_pixel_l_each_bump_deviation(box.p, box.sur_vec, cur);
-		box.ln_dotp = vec3_dot(bump_vec, box.s2l_vec);
+		box.sur_vec = bump_vec;
+		box.ln_dotp = vec3_dot(box.sur_vec, box.s2l_vec);
 		factor = calc_pixel_l_sdwvslit(box, data->obj_head, cur_ligt);
 		if (factor > 0)
 		{
