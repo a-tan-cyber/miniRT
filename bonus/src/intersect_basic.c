@@ -6,7 +6,7 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 20:27:27 by amtan             #+#    #+#             */
-/*   Updated: 2026/04/29 20:28:55 by amtan            ###   ########.fr       */
+/*   Updated: 2026/05/18 22:12:13 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,64 +46,7 @@ double	ft_solve_quadratic_abd_far(double a, double b, double delta)
 	return (-1);
 }
 
-t_cord	vec3_div(t_cord x, double times)
-{
-	t_cord	res;
-
-	initialise_t_cord(&res);
-	res.x = x.x / times;
-	res.y = x.y / times;
-	res.z = x.z / times;
-	return (res);
-}
-
-t_cord	vec3_mul_vec3(t_cord x, t_cord y)
-{
-	t_cord	res;
-
-	initialise_t_cord(&res);
-	res.x = x.x * y.x;
-	res.y = x.y * y.y;
-	res.z = x.z * y.z;
-	return (res);	
-}
-
-t_cord	vec3_div_vec3(t_cord x, t_cord y)
-{
-	t_cord	res;
-
-	initialise_t_cord(&res);
-	res.x = x.x / y.x;
-	res.y = x.y / y.y;
-	res.z = x.z / y.z;
-	return (res);
-}
-
 // ellipsoid: Squish the Ray ray.ori / obj.dia_xyz; ray.cord / obj.dia_xyz
-double	calc_intersect_el(t_ray *ray, t_obj *obj)
-{
-	t_cord	r;
-	t_cord	ray_ori;
-	t_cord	ray_cord;
-	t_calc	calc;
-
-	initialise_t_cord(&r);
-	initialise_t_cord(&ray_ori);
-	initialise_t_cord(&ray_cord);
-	initialise_t_calc(&calc);
-	r = vec3_div(obj->dia_xyz, 2);
-	ray_ori = vec3_div_vec3(ray->ori, r);
-	ray_cord = vec3_sub(ray->cord, obj->cord);
-	ray_cord = vec3_div_vec3(ray_cord, r);
-	calc.a = vec3_dot(ray_ori, ray_ori);
-	calc.b = 2 * vec3_dot(ray_ori, ray_cord);
-	calc.c = vec3_dot(ray_cord, ray_cord) - (1);
-	calc.delta = ft_discriminant(calc.a, calc.b, calc.c);
-	if (calc.delta >= 0)
-		return (ft_solve_quadratic_abd_near(calc.a, calc.b, calc.delta));
-	return (-1);
-}
-
 // sphere: x^2 + y^2 + z^2 = r^2
 double	calc_intersect_sp(t_ray *ray, t_obj *obj)
 {

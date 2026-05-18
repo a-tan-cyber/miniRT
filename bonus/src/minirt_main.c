@@ -6,7 +6,7 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 17:17:44 by yunguo            #+#    #+#             */
-/*   Updated: 2026/04/29 21:43:43 by amtan            ###   ########.fr       */
+/*   Updated: 2026/05/18 22:10:15 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,8 @@ int	main(int argc, char **argv)
 	data = NULL;
 	if (initialise_structs(&obj, &data) != 0)
 		return (free_rt(&obj, &data), 3);
-	printf("initialise_structs complete\n"); //remove
 	if (initialise_rt(argv[1], &obj, &data) != 0)
 		return (free_rt(&obj, &data), 4);
-	printf("initialise_rt complete\n"); //remove
 	if (initialise_minilibx(&data) != 0)
 		return (free_rt(&obj, &data), 5);
 	if (calc_pixel(&obj, &data) != 0)

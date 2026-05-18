@@ -18,19 +18,40 @@ SRCS_NAME = \
 	src/init.c \
 	src/vector_basic.c \
 	src/vector_extra.c \
+	src/vector_bonus.c \
 	src/camera_ray.c \
 	src/ray_init.c \
 	src/cleanup.c \
 	src/window.c \
 	src/intersect_basic.c \
+	src/intersect_ellipsoid.c \
 	src/intersect_cylinder_tube.c \
 	src/intersect_cylinder_caps.c \
 	src/intersect_dispatch.c \
 	src/lighting_color.c \
 	src/lighting_normal.c \
 	src/lighting_main.c \
+	src/lighting_utils.c \
+	src/lighting_specular.c \
+	src/lighting_checker_uv.c \
+	src/lighting_checker.c \
+	src/lighting_perlin.c \
+	src/lighting_perlin_base.c \
+	src/lighting_perlin_grad.c \
+	src/lighting_perlin_corner.c \
+	src/lighting_bump.c \
+	src/lighting_threads.c \
+	src/lighting_thread_run.c \
 	src/parser_validate.c \
 	src/parser_data.c \
+	src/parser_light_list.c \
+	src/parser_data_select.c \
+	src/parser_object_bonus.c \
+	src/parser_object_bonus_apply.c \
+	src/parser_object_common.c \
+	src/parser_shapes_ellipsoid.c \
+	src/parser_shapes_basic.c \
+	src/parser_shapes_cylinder.c \
 	src/parser_objects.c \
 	src/parser_main.c \
 	src/parser_split.c \

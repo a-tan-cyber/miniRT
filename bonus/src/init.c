@@ -6,7 +6,7 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 19:39:38 by amtan             #+#    #+#             */
-/*   Updated: 2026/04/29 19:45:31 by amtan            ###   ########.fr       */
+/*   Updated: 2026/05/18 22:12:39 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,11 +67,6 @@ void	initialise_t_data(t_data *cur_data)
 	initialise_t_cord(&cur_data->cam.cord);
 	initialise_t_cord(&cur_data->cam.ori);
 	cur_data->cam.fov = -1;
-	// cur_data->ligt_loaded = FALSE;
-	// initialise_t_cord(&cur_data->ligt.cord);
-	// cur_data->ligt.bright = -1;
-	// initialise_t_rgb(&cur_data->ligt.rgb);
-	// initialise_t_ligt(cur_data->ligt);
 	cur_data->ligt = NULL;
 	cur_data->mlx = NULL;
 	cur_data->win = NULL;

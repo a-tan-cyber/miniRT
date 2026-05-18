@@ -6,7 +6,7 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 22:04:22 by yunguo            #+#    #+#             */
-/*   Updated: 2026/04/29 19:29:07 by amtan            ###   ########.fr       */
+/*   Updated: 2026/05/18 22:10:59 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,7 +118,6 @@ typedef struct s_data
 	t_obj	*obj_head;
 }	t_data;
 
-
 typedef struct s_thrd
 {
 	pthread_t		thrd;
@@ -138,7 +137,6 @@ typedef struct s_ray
 	t_cord	ori;
 	t_lhit	lhit;
 }	t_ray;
-
 
 // sur_vec: surface/normal vector; s2l_vec: surface to light vector;
 // ln_dotp: light vector dot normal vector dot product

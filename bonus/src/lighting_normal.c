@@ -6,7 +6,7 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 20:56:44 by amtan             #+#    #+#             */
-/*   Updated: 2026/04/29 21:48:01 by amtan            ###   ########.fr       */
+/*   Updated: 2026/05/18 22:09:43 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ t_cord	calc_surface_normal(t_cord p, t_obj *cur, t_ray *ray)
 		else if (ray->lhit == TUBE)
 		{
 			new_center = vec3_mul(cur->ori,
-				calc_surface_normal_cy_distance(p, cur));
+					calc_surface_normal_cy_distance(p, cur));
 			new_center = vec3_add(new_center, cur->cord);
 			res = vec3_sub(p, new_center);
 		}
