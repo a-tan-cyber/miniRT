@@ -34,3 +34,5 @@ sample vector: 0.57735026,0.57735026,0.57735026
 # notes
 compiling with the -flto flag on performance oriented programs
 -O3
+
+bump map options: empty, sine, perlin.

@@ -105,6 +105,27 @@ int	ins_chkr(t_bool *chkr, const char *str)
 	return (0);
 }
 
+int	ins_bump(t_bump bump_type, const char *str)
+{
+	if (!ft_strcmp("sine", str))
+	{
+		*bump_type = SINE;
+	}
+	else if (!ft_strcmp("perlin", str))
+	{
+		*bump_type = PERLIN;
+	}
+	else if (!ft_strcmp("empty", str))
+	{
+		*bump_type = EMPTY;
+	}
+	else
+	{
+		return (ft_puterr("bump type value is invalid"), -1);
+	}
+	return (0);
+}
+
 int	add_rt_data_s_el(const char **split_arr, t_obj *new)
 {
 	char	**arr;
@@ -131,6 +152,8 @@ int	add_rt_data_s_el(const char **split_arr, t_obj *new)
 		return (free_arr(arr), -5);
 	if (ins_chkr(&new->chkr, split_arr[4]))
 		return (free_arr(arr), -6);
+	if (ins_bump(&new->bump, split_arr[5]))
+		return (free_arr(arr), -7);
 	return (free_arr(arr), 0);
 }
 
@@ -165,6 +188,8 @@ int	add_rt_data_s_sp(const char **split_arr, t_obj *new)
 		return (free_arr(arr), -4);
 	if (ins_chkr(&new->chkr, split_arr[4]))
 		return (free_arr(arr), -6);
+	if (ins_bump(&new->bump, split_arr[5]))
+		return (free_arr(arr), -7);
 	return (free_arr(arr), 0);
 }
 
@@ -202,6 +227,8 @@ int	add_rt_data_s_pl(const char **split_arr, t_obj *new)
 		return (free_arr(arr), -4);
 	if (ins_chkr(&new->chkr, split_arr[4]))
 		return (free_arr(arr), -6);
+	if (ins_bump(&new->bump, split_arr[5]))
+		return (free_arr(arr), -7);
 	new->plane_constant = vec3_dot(new->cord, new->ori);
 	return (free_arr(arr), 0);
 }
@@ -234,7 +261,7 @@ int	add_rt_data_s_cy(const char **split_arr, t_obj *new)
 {
 	char	**arr;
 
-	if (ft_arrlen(split_arr) != 7)
+	if (ft_arrlen(split_arr) != 7) // maybe make bump mapping variable optional: if (ft_arrlen(split_arr) == 7 or == 8 then ok)
 		return (ft_puterr("cylinder wrong number of fields"), -2);
 	new->type = CY;
 	arr = split_3_float(split_arr[1], ",");
@@ -252,9 +279,11 @@ int	add_rt_data_s_cy(const char **split_arr, t_obj *new)
 		return (ft_puterr("cylinder diameter <= 0 or height <= 0"), 3);
 	new->dia = ft_atod(split_arr[3]);
 	new->higt = ft_atod(split_arr[4]);
-	if (ins_chkr(&new->chkr, split_arr[6]))
-		return (free_arr(arr), -6);
 	if (val_ins_rgb(split_arr[5], new) != 0)
 		return (ft_puterr("add_rt_data_s_cy: cylinder failed to ins rgb"), 4);
+	if (ins_chkr(&new->chkr, split_arr[6]))
+		return (free_arr(arr), -6);
+	if (ins_bump(&new->bump, split_arr[7]))
+		return (free_arr(arr), -6);
 	return (0);
 }

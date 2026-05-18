@@ -21,6 +21,13 @@ typedef enum e_type
 	CY
 }	t_type;
 
+typedef enum e_bump
+{
+	EMPTY,
+	SINE,
+	PERLIN
+}	t_bump;
+
 typedef enum e_lhit
 {
 	FLAT_TOP,
@@ -68,6 +75,7 @@ typedef struct s_obj
 	t_rgb			rgb;
 	double			plane_constant;
 	t_bool			chkr;
+	t_bump			bump;
 	struct s_obj	*next;
 }	t_obj;
 
@@ -131,6 +139,9 @@ typedef struct s_ray
 	t_lhit	lhit;
 }	t_ray;
 
+
+// sur_vec: surface/normal vector; s2l_vec: surface to light vector;
+// ln_dotp: light vector dot normal vector dot product
 typedef struct s_box
 {
 	t_cord	p;

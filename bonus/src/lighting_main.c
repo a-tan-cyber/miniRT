@@ -40,18 +40,16 @@ double	calc_pixel_l_sdwvslit(t_box box, t_obj *obj, t_ligt *ligt)
 {
 	t_ray	shadow;
 	t_cord	p;
-	t_cord	sur_vec;
 	t_cord	s2l_vec;
 	double	factor;
 
 	p = box.p;
-	sur_vec = box.sur_vec;
 	s2l_vec = box.s2l_vec;
 	factor = box.ln_dotp;
 	if (factor < 0)
 		return (factor);
 	initialise_t_ray(&shadow);
-	shadow.cord = vec3_add(p, vec3_mul(sur_vec, EPSILON));
+	shadow.cord = vec3_add(p, vec3_mul(box.sur_vec, EPSILON));
 	shadow.ori = s2l_vec;
 	calc_pixel_frt(&shadow, obj);
 	if (shadow.t <= EPSILON
@@ -313,15 +311,115 @@ void	initialise_t_box(t_box *box)
 // 	return (ambi);
 // }
 
-t_rgb	calc_pixel_l_each(t_rgb ambi, t_box box, t_ligt *ligt, t_data *data)
+// t_rgb	calc_pixel_l_each(t_rgb ambi, t_box box, t_obj *cur, t_data *data)
+// {
+// 	double	factor;
+// 	t_ligt	*cur_ligt;
+// 	t_cord	bump_vec;
+
+// 	initialise_t_cord(&bump_vec);
+// 	cur_ligt = data->ligt;
+// 	while (cur_ligt)
+// 	{
+// 		box.s2l_vec = vec3_2pvec_norm(cur_ligt->cord, box.p);
+// 		// bump_vec = calc_pixel_l_each_bump_deviation(box.sur_vec, cur);
+// 		box.ln_dotp = vec3_dot(box.sur_vec, box.s2l_vec);
+// 		factor = calc_pixel_l_sdwvslit(box, data->obj_head, cur_ligt);
+// 		if (factor > 0)
+// 		{
+// 			ambi = rgb_add(ambi, calc_pixel_l_diffused(box.s, factor, cur_ligt));
+// 			ambi = rgb_amp_cap(rgb_add(ambi, calc_pixel_l_specular(box, cur_ligt, data)), 1);
+// 		}
+// 		cur_ligt = cur_ligt->next;
+// 	}
+// 	return (ambi);
+// }
+
+// t_cord	sinusoidal_modulation(t_cord p, t_cord res, t_cord sur_vec, t_obj *cur)
+// {
+// 	double	tilt;
+// 	t_cord	up;
+// 	t_cord	dir;
+	
+// 	up = calc_vector_up(cur->ori);
+// 	dir = vec3_cross(up, sur_vec);
+// 	tilt = sin(p.x * p.y);
+// 	dir = vec3_mul(dir, tilt);
+// 	res = vec3_add(res, dir);
+// 	res = vec3_normalise(res);
+// 	return (res);
+// }
+
+t_cord	vec3_floor(p);
+t_cord	vec3_add_xyz(base_corner, 1, 0, 0);
+
+double	perlin_noise_each_corner(t_cord corner, t_cord p)
+{
+	t_cord	p2c_vec;
+	t_cord	rdm_vec;
+
+	p2c_vec = vec3_sub(p, corner);
+	rdm_vec = perlin_noise_rand_vec(corner);
+	return (vec3_dot(p2c_vec, rdm_vec));
+}
+double	perlin_noise(t_cord p)
+{
+	double	all_corners[8];
+	t_cord	base_corner;
+	t_cord	corner;
+
+	res = 0;
+	//bottom back left
+	base_corner = vec3_floor(p);
+	all_corners[0] = perlin_noise_each_corner(base_corner, p);
+	//bottom back right
+	corner = vec3_add_xyz(base_corner, 1, 0, 0);
+	all_corners[1] = perlin_noise_each_corner(corner, p);
+	// ... for 8 corners
+	t_cord	fractional_dist = vec3_sub(p, base_corner);
+	// fade function based on position from base_corner
+	// blend value linear interpolation
+}
+
+t_cord	calc_pixel_l_each_bump_deviation(t_cord p, t_cord sur_vec, t_obj *cur)
+{
+	t_cord	res;
+	double	tilt;
+	t_cord	up;
+	t_cord	dir;
+
+	res = vec3_mul(sur_vec, 1);
+	if (cur->bump == EMPTY)
+		return (res);
+	up = calc_vector_up(cur->ori);
+	dir = vec3_cross(up, sur_vec);
+	if (cur->bump == SINE)
+	{
+		tilt = sin(p.x * p.y);
+	}
+	else if (cur->bump == PERLIN)
+	{
+		tilt = perlin_noise(p);
+	}
+	dir = vec3_mul(dir, tilt);
+	res = vec3_add(res, dir);
+	res = vec3_normalise(res);
+	return (res);
+}
+
+t_rgb	calc_pixel_l_each(t_rgb ambi, t_box box, t_obj *cur, t_data *data)
 {
 	double	factor;
-	t_ligt	*cur_ligt = ligt;
+	t_ligt	*cur_ligt;
+	t_cord	bump_vec;
 
+	initialise_t_cord(&bump_vec);
+	cur_ligt = data->ligt;
 	while (cur_ligt)
 	{
 		box.s2l_vec = vec3_2pvec_norm(cur_ligt->cord, box.p);
-		box.ln_dotp = vec3_dot(box.sur_vec, box.s2l_vec);
+		bump_vec = calc_pixel_l_each_bump_deviation(box.p, box.sur_vec, cur);
+		box.ln_dotp = vec3_dot(bump_vec, box.s2l_vec);
 		factor = calc_pixel_l_sdwvslit(box, data->obj_head, cur_ligt);
 		if (factor > 0)
 		{
@@ -350,7 +448,7 @@ t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_ligt *ligt, t_data *data)
 		box.s = cur->rgb;
 	ambi = rgb_mul(ambi, box.s, 255);
 	box.sur_vec = calc_surface_normal(box.p, cur, ray);
-	ambi = calc_pixel_l_each(ambi, box, ligt, data);
+	ambi = calc_pixel_l_each(ambi, box, cur, data);
 	return (ambi);
 }
 
