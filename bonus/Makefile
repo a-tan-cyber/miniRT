@@ -1,64 +1,64 @@
-NAME = miniRT_bonus
+NAME = ../miniRT_bonus
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
 
-LIBFT_DIR = libft
+LIBFT_DIR = ../libft
 LIBFT = $(LIBFT_DIR)/libft.a
 
-MLX_DIR = minilibx-linux
+MLX_DIR = ../minilibx-linux
 MLX = $(MLX_DIR)/libmlx_Linux.a
 MLX_FLAGS = -L$(MLX_DIR) -lmlx_Linux -lXext -lX11 -lm -lz
 
 SRCS_NAME = \
-	src/ft_atod.c \
-	src/ft_atof.c \
-	src/ft_float_utils.c \
-	src/ft_str_is_float.c \
-	src/minirt_main.c \
-	src/init.c \
-	src/vector_basic.c \
-	src/vector_extra.c \
-	src/vector_bonus.c \
-	src/camera_ray.c \
-	src/ray_init.c \
-	src/cleanup.c \
-	src/window.c \
-	src/intersect_basic.c \
-	src/intersect_ellipsoid.c \
-	src/intersect_cylinder_tube.c \
-	src/intersect_cylinder_caps.c \
-	src/intersect_dispatch.c \
-	src/lighting_color.c \
-	src/lighting_normal.c \
-	src/lighting_main.c \
-	src/lighting_utils.c \
-	src/lighting_specular.c \
-	src/lighting_checker_uv.c \
-	src/lighting_checker.c \
-	src/lighting_perlin.c \
-	src/lighting_perlin_base.c \
-	src/lighting_perlin_grad.c \
-	src/lighting_perlin_corner.c \
-	src/lighting_bump.c \
-	src/lighting_threads.c \
-	src/lighting_thread_run.c \
-	src/parser_validate.c \
-	src/parser_data.c \
-	src/parser_light_list.c \
-	src/parser_data_select.c \
-	src/parser_object_bonus.c \
-	src/parser_object_bonus_apply.c \
-	src/parser_object_common.c \
-	src/parser_shapes_ellipsoid.c \
-	src/parser_shapes_basic.c \
-	src/parser_shapes_cylinder.c \
-	src/parser_objects.c \
-	src/parser_main.c \
-	src/parser_split.c \
-	src/object_list.c \
-	src/camera_move.c \
-	src/input.c \
-	src/debug_print.c \
+	ft_atod_bonus.c \
+	ft_atof_bonus.c \
+	ft_float_utils_bonus.c \
+	ft_str_is_float_bonus.c \
+	minirt_main_bonus.c \
+	init_bonus.c \
+	vector_basic_bonus.c \
+	vector_extra_bonus.c \
+	vector_bonus.c \
+	camera_ray_bonus.c \
+	ray_init_bonus.c \
+	cleanup_bonus.c \
+	window_bonus.c \
+	intersect_basic_bonus.c \
+	intersect_ellipsoid_bonus.c \
+	intersect_cylinder_tube_bonus.c \
+	intersect_cylinder_caps_bonus.c \
+	intersect_dispatch_bonus.c \
+	lighting_color_bonus.c \
+	lighting_normal_bonus.c \
+	lighting_main_bonus.c \
+	lighting_utils_bonus.c \
+	lighting_specular_bonus.c \
+	lighting_checker_uv_bonus.c \
+	lighting_checker_bonus.c \
+	lighting_perlin_bonus.c \
+	lighting_perlin_base_bonus.c \
+	lighting_perlin_grad_bonus.c \
+	lighting_perlin_corner_bonus.c \
+	lighting_bump_bonus.c \
+	lighting_threads_bonus.c \
+	lighting_thread_run_bonus.c \
+	parser_validate_bonus.c \
+	parser_data_bonus.c \
+	parser_light_list_bonus.c \
+	parser_data_select_bonus.c \
+	parser_object_bonus.c \
+	parser_object_bonus_apply_bonus.c \
+	parser_object_common_bonus.c \
+	parser_shapes_ellipsoid_bonus.c \
+	parser_shapes_basic_bonus.c \
+	parser_shapes_cylinder_bonus.c \
+	parser_objects_bonus.c \
+	parser_main_bonus.c \
+	parser_split_bonus.c \
+	object_list_bonus.c \
+	camera_move_bonus.c \
+	input_bonus.c \
+	debug_print_bonus.c \
 	
 SRCS = $(SRCS_NAME)
 OBJS = $(SRCS:.c=.o)
@@ -75,8 +75,7 @@ $(NAME): $(OBJS) $(LIBFT) $(MLX)
 	$(CC) $(CFLAGS) $(OBJS) $(LIBFT) $(MLX_FLAGS) -o $(NAME)
 
 %.o: %.c
-# 	$(CC) $(CFLAGS) -I$(LIBFT_DIR)/include -I$(MLX_DIR) -c $< -o $@
-	$(CC) $(CFLAGS) $(SPEED) -I$(LIBFT_DIR)/include -I$(MLX_DIR) -c $< -o $@
+	$(CC) $(CFLAGS) -I$(LIBFT_DIR)/include -I$(MLX_DIR) -c $< -o $@
 
 bonus: all
 
