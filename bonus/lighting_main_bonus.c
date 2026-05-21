@@ -6,7 +6,7 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 20:57:29 by amtan             #+#    #+#             */
-/*   Updated: 2026/05/19 00:59:28 by amtan            ###   ########.fr       */
+/*   Updated: 2026/05/21 19:22:10 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,12 @@ t_rgb	calc_pixel_l(t_ray *ray, t_obj *cur, t_ligt *ligt, t_data *data)
 
 	initialise_t_rgb(&ambi);
 	if (!ray || !cur || !ligt || !data)
+	{
+		ambi.r = BACKGROUND_R;
+		ambi.g = BACKGROUND_G;
+		ambi.b = BACKGROUND_B;
 		return (ambi);
+	}
 	ambi = rgb_amp_cap(data->ambi.rgb, data->ambi.ratio);
 	initialise_t_box(&box);
 	box.p = calc_point(ray);

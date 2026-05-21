@@ -6,7 +6,7 @@
 /*   By: amtan <amtan@student.42singapore.sg>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 17:41:51 by yunguo            #+#    #+#             */
-/*   Updated: 2026/05/19 01:00:38 by amtan            ###   ########.fr       */
+/*   Updated: 2026/05/21 19:21:34 by amtan            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,9 @@
 # include <float.h>
 # include <pthread.h>
 
-# include <stdio.h> // remove
+# define BACKGROUND_R 0
+# define BACKGROUND_G 0
+# define BACKGROUND_B 0
 
 # define EPSILON 1e-4
 # define RT_PI 3.14159265358979323846
