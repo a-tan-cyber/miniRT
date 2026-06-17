@@ -6,7 +6,7 @@
 
 ## Description
 
-miniRT is a small ray tracer written in C.
+miniRT is a 42 core curriculum project in which students build a small ray tracer in C.
 
 The program reads a `.rt` scene file, parses the scene data, casts camera rays into the scene, finds the closest object intersections, computes lighting and shadows, and displays the rendered image in a MiniLibX/X11 window.
 
